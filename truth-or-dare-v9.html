@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2a1245">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Truth or Dare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#2a1245; --bg2:#6b2d8b; --bg3:#8e24aa;
+  --pill:#8e24aa; --pill-hi:#b039d3;
+  --ink:#ffffff; --ink-dim:rgba(255,255,255,.65);
+  --panel:#ffffff; --panel-ink:#1c1023; --panel-dim:#b9b0c2;
+  --gold:#ffd166; --pink:#ff7bac; --green:#5be584; --red:#ff5c5c;
+  --l1:#57c7ff; --l2:#5be584; --l3:#b6e34d; --l4:#ffd166; --l5:#ffa94d; --l6:#ff7b54; --l7:#ff5c5c; --l8:#e5383b; --l9:#a4133c; --l10:#6a040f;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+html,body{height:100%;}
+body{
+  margin:0; font-family:'Nunito',sans-serif; color:var(--ink);
+  background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 55%,var(--bg3) 100%);
+  overflow:hidden; position:fixed; inset:0;
+}
+/* party bokeh */
+.bokeh{position:fixed; inset:0; pointer-events:none; z-index:0;}
+.bokeh span{position:absolute; border-radius:50%; filter:blur(18px); opacity:.35;
+  animation:float 9s ease-in-out infinite alternate;}
+@keyframes float{from{transform:translateY(0)}to{transform:translateY(-26px)}}
+@media (prefers-reduced-motion:reduce){.bokeh span{animation:none}}
+
+h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
+.screen{position:fixed; inset:0; display:none; flex-direction:column; align-items:center;
+  justify-content:center; padding:24px; z-index:1; overflow:hidden;}
+.screen.active{display:flex;}
+.title{font-size:clamp(30px,6vw,52px); font-weight:800; text-align:center; margin:0 0 28px;
+  text-shadow:0 3px 14px rgba(0,0,0,.35);}
+
+/* ---------- top bar ---------- */
+.topbar{position:fixed; top:0; left:0; right:0; display:flex; align-items:center;
+  justify-content:space-between; padding:14px 18px; z-index:5;}
+.iconbtn{background:rgba(255,255,255,.14); border:none; color:#fff; width:46px; height:46px;
+  border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.iconbtn:active{transform:scale(.92);}
+
+/* ---------- pills / buttons ---------- */
+.pillrow{display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;}
+.numpill{width:74px; height:74px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--pill); color:#fff; font-family:'Baloo 2'; font-size:30px; font-weight:800;
+  box-shadow:0 6px 0 rgba(0,0,0,.25); transition:transform .12s;}
+.numpill:active{transform:translateY(3px);}
+.numpill.sel{background:#fff; color:var(--pill); transform:scale(1.15);}
+.bigbtn{border:none; cursor:pointer; background:#fff; color:var(--pill);
+  font-family:'Baloo 2'; font-weight:800; font-size:clamp(22px,5.4vw,32px); padding:clamp(14px,2.4vh,20px) clamp(34px,8vw,54px);
+  border-radius:44px; box-shadow:0 6px 0 rgba(0,0,0,.25); margin-top:34px;}
+.bigbtn:active{transform:translateY(3px);}
+.bigbtn:disabled{opacity:.4;}
+.bigbtn.alt{background:rgba(255,255,255,.16); color:#fff; box-shadow:0 6px 0 rgba(0,0,0,.35);
+  border:3px solid rgba(255,255,255,.65);}
+.btnrow{display:flex; gap:16px; align-items:center;}
+.btnrow .bigbtn{margin-top:26px;}
+.ghostbtn{border:2px solid rgba(255,255,255,.5); background:transparent; color:#fff;
+  font-family:'Baloo 2'; font-weight:700; font-size:17px; padding:10px 24px; border-radius:30px; cursor:pointer;}
+
+/* ---------- gender toggle ---------- */
+.gtoggle{display:flex; gap:14px; margin-bottom:26px;}
+.gtoggle button{border:none; cursor:pointer; padding:12px 34px; border-radius:34px;
+  font-family:'Baloo 2'; font-weight:800; font-size:20px; background:rgba(255,255,255,.16); color:#fff;}
+.gtoggle button.sel{background:#fff; color:var(--pill);}
+
+/* ---------- face grid ---------- */
+.facegrid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; max-width:640px; width:100%;}
+@media(max-width:520px){.facegrid{grid-template-columns:repeat(3,1fr); gap:10px;}}
+.faceopt{background:rgba(255,255,255,.12); border:3px solid transparent; border-radius:22px;
+  padding:8px; cursor:pointer; transition:transform .12s;}
+.faceopt:active{transform:scale(.94);}
+.faceopt.sel{border-color:var(--gold); background:rgba(255,255,255,.24);}
+.faceopt svg{display:block; width:100%; height:auto;}
+.taken{opacity:.28; pointer-events:none;}
+
+/* ---------- orbiting wheel ---------- */
+.wheelwrap{position:relative; width:min(86vw,60vh,460px); aspect-ratio:1; margin-top:20px;
+  --seat:clamp(74px,18vw,104px);}
+.pointer{position:absolute; top:calc(var(--seat)*-0.5); left:50%; transform:translateX(-50%); z-index:5;
+  width:0; height:0; border-left:18px solid transparent; border-right:18px solid transparent;
+  border-top:28px solid var(--gold); filter:drop-shadow(0 3px 4px rgba(0,0,0,.45));}
+.ring{position:absolute; inset:0; will-change:transform;}
+.seat{position:absolute; left:50%; top:50%; width:var(--seat); height:var(--seat);
+  margin:calc(var(--seat)/-2); border-radius:50%; background:rgba(0,0,0,.34);
+  padding:5px; border:4px solid rgba(255,255,255,.4);}
+.seat svg,.bigface svg{width:100%;height:100%;display:block;}
+.seat.winner{border-color:var(--gold);
+  box-shadow:0 0 0 6px rgba(255,209,102,.4),0 0 30px var(--gold);}
+.gobtn{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:38%; aspect-ratio:1;
+  border-radius:50%; border:6px solid #fff; background:rgba(255,255,255,.16); color:#fff;
+  font-family:'Baloo 2'; font-weight:800; font-size:clamp(26px,7vw,42px); cursor:pointer; z-index:3;
+  backdrop-filter:blur(2px); text-shadow:0 2px 8px rgba(0,0,0,.4); box-shadow:0 6px 20px rgba(0,0,0,.3);}
+.gobtn:active{transform:translate(-50%,-50%) scale(.94);}
+.gobtn:disabled{opacity:.6;}
+
+/* ---------- difficulty ---------- */
+.lvlbtn{border:none; cursor:pointer; font-family:'Baloo 2'; font-weight:800;
+  font-size:clamp(15px,2.6vw,20px); padding:11px 26px; border-radius:28px; color:#1c1023;
+  box-shadow:0 4px 0 rgba(0,0,0,.25);}
+.lvlbtn:active{transform:translateY(2px);}
+.lv-EASY{background:var(--l1);} .lv-PLAYFUL{background:var(--l2);} .lv-TEASING{background:var(--l3);} .lv-MEDIUM{background:var(--l4);} .lv-DARING{background:var(--l5);} .lv-HARD{background:var(--l6);} .lv-HEATED{background:var(--l7); color:#fff!important;} .lv-EXTREME{background:var(--l8); color:#fff!important;} .lv-EXPLICIT{background:var(--l9); color:#fff!important;} .lv-HARDCORE{background:var(--l10); color:#fff!important;}
+.levelgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(92vw,460px);}
+.levelbig{display:block; width:100%; border:none; cursor:pointer;
+  font-family:'Baloo 2'; font-weight:800; font-size:clamp(17px,4.2vw,23px); padding:clamp(12px,2.3vh,19px) 6px;
+  border-radius:20px; color:#1c1023; box-shadow:0 5px 0 rgba(0,0,0,.28); transition:transform .12s;}
+.levelbig:active{transform:translateY(4px);}
+.levelbig.sel{outline:5px solid #fff; outline-offset:-2px;}
+#screen-level .title{margin-bottom:8px; font-size:clamp(26px,6vw,40px);}
+
+/* ---------- turn screen ---------- */
+.turnhead{display:flex; flex-direction:column; align-items:center; gap:6px; margin-bottom:14px;}
+.bigface{width:clamp(120px,26vw,180px); aspect-ratio:1; border-radius:50%; background:#1c1023; padding:10px;
+  border:5px solid var(--gold); box-shadow:0 8px 30px rgba(0,0,0,.4);}
+.turnlabel{font-family:'Baloo 2'; font-weight:800; font-size:22px;}
+.slotpanel{background:var(--panel); color:var(--panel-ink); width:min(90vw,460px);
+  border-radius:26px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.35); touch-action:none;}
+.slotrow{padding:clamp(18px,3.4vh,30px) 10px; text-align:center; font-family:'Baloo 2'; font-weight:800;
+  font-size:clamp(38px,9vw,54px); color:#6b6175; cursor:pointer; transition:all .18s;}
+.slotrow.sel{color:var(--panel-ink); font-size:clamp(46px,11vw,66px); background:#f6f2fa;}
+.slot-or{font-size:20px; letter-spacing:3px; color:#8a7f95; padding:4px; cursor:default;
+  border-top:1px solid #eee; border-bottom:1px solid #eee;}
+.hint{margin-top:14px; color:var(--ink-dim); font-size:15px; font-weight:700;}
+.verlabel{position:fixed; top:20px; left:74px; z-index:6; font-family:'Baloo 2'; font-weight:800;
+  font-size:13px; color:rgba(255,255,255,.7); letter-spacing:.5px; pointer-events:none;}
+.inlineface{display:inline-block; width:1.05em; height:1.05em; vertical-align:-.2em; margin-right:.12em;}
+.inlineface svg{width:100%;height:100%;display:block;}
+
+/* ---------- card ---------- */
+#screen-card{justify-content:center; gap:0;}
+.card{background:var(--panel); color:var(--panel-ink); width:min(92vw,600px);
+  min-height:38vh; border-radius:32px; padding:clamp(28px,5vw,48px); box-shadow:0 12px 40px rgba(0,0,0,.35);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; text-align:center;
+  margin:18px 0;}
+.cardtext{font-family:'Baloo 2'; font-weight:800; font-size:clamp(28px,6vw,44px); line-height:1.28;
+  display:block; width:100%;}
+.timerbtn{border:none; cursor:pointer; background:var(--pill); color:#fff; font-family:'Baloo 2';
+  font-weight:800; font-size:24px; padding:14px 40px; border-radius:34px; box-shadow:0 5px 0 rgba(0,0,0,.2);}
+.timerbig{font-family:'Baloo 2'; font-weight:800; font-size:clamp(64px,16vw,110px); color:var(--pill);}
+.timerbig.urgent{color:var(--red); animation:blink .5s steps(2) infinite;}
+@keyframes blink{50%{opacity:.35}}
+
+/* ---------- editor ---------- */
+#screen-editor{justify-content:flex-start; padding-top:80px; overflow:hidden;}
+.edtools{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px;}
+.chip{border:none; cursor:pointer; font-weight:800; font-size:14px; padding:7px 16px;
+  border-radius:20px; background:rgba(255,255,255,.16); color:#fff;}
+.chip.sel{background:#fff; color:var(--pill);}
+.edlist{flex:1; width:min(94vw,640px); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column; gap:10px; padding-bottom:110px;}
+.edrow{background:rgba(255,255,255,.12); border-radius:16px; padding:12px 14px; display:flex;
+  gap:10px; align-items:center;}
+.edrow .txt{flex:1; font-weight:700; font-size:15px; line-height:1.35;}
+.badge{font-family:'Baloo 2'; font-weight:800; font-size:11px; padding:3px 9px; border-radius:12px; color:#1c1023;}
+.badge.T{background:var(--pink); color:#fff;} .badge.D{background:#c77dff; color:#fff;}
+.badge.tm{background:rgba(255,255,255,.85);}
+.edrow button{background:none; border:none; color:#fff; font-size:18px; cursor:pointer; opacity:.8;}
+.edactions{position:fixed; bottom:0; left:0; right:0; display:flex; gap:10px; justify-content:center;
+  padding:16px; background:linear-gradient(transparent,rgba(26,10,44,.9) 40%); z-index:6;}
+.edactions button{font-family:'Baloo 2'; font-weight:800; border:none; border-radius:26px;
+  padding:12px 20px; font-size:16px; cursor:pointer;}
+.addbtn{background:var(--gold); color:#1c1023;} .iobtn{background:rgba(255,255,255,.2); color:#fff;}
+
+/* edit modal */
+.modal{position:fixed; inset:0; background:rgba(10,4,20,.7); display:none; align-items:center;
+  justify-content:center; z-index:20; padding:20px;}
+.modal.open{display:flex;}
+.modalbox{background:#fff; color:var(--panel-ink); border-radius:22px; padding:22px;
+  width:min(92vw,480px); display:flex; flex-direction:column; gap:14px;}
+.modalbox textarea{font-family:'Nunito'; font-weight:700; font-size:16px; border:2px solid #e2d8ec;
+  border-radius:14px; padding:12px; resize:vertical; min-height:84px; user-select:text;}
+.modalrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.seg{display:flex; border-radius:14px; overflow:hidden; border:2px solid #e2d8ec;}
+.seg{flex-wrap:wrap;}
+.seg button{border:none; background:#fff; padding:8px 11px; font-weight:800; font-size:14px; cursor:pointer; color:#8a7f95;}
+.seg button.sel{background:var(--pill); color:#fff;}
+.modalbox input[type=number]{width:80px; font-weight:800; font-size:16px; padding:8px;
+  border:2px solid #e2d8ec; border-radius:12px; user-select:text;}
+.modalactions{display:flex; gap:10px; justify-content:flex-end;}
+.modalactions button{font-family:'Baloo 2'; font-weight:800; border:none; border-radius:20px;
+  padding:10px 22px; font-size:16px; cursor:pointer;}
+.savebtn{background:var(--pill); color:#fff;} .cancelbtn{background:#eee;}
+
+.toast{position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#1c1023; color:#fff; font-weight:800; padding:12px 22px; border-radius:26px;
+  opacity:0; transition:all .3s; z-index:30; pointer-events:none; max-width:86vw; text-align:center;}
+.toast.show{opacity:1; transform:translateX(-50%);}
+</style>
+</head>
+<body>
+<div class="bokeh" id="bokeh"></div>
+
+<div class="topbar">
+  <button class="iconbtn" id="homeBtn" title="New game">⌂</button>
+  <div class="verlabel" id="verLabel"></div>
+  <button class="lvlbtn" id="levelBtn">Medium</button>
+  <button class="iconbtn" id="editBtn" title="Edit truths &amp; dares">✎</button>
+</div>
+
+<!-- 1. player count -->
+<section class="screen active" id="screen-count">
+  <h1 class="title">How many players?</h1>
+  <div class="pillrow" id="countPills"></div>
+  <button class="bigbtn" id="countNext">Next</button>
+</section>
+
+<!-- 2. face pick -->
+<section class="screen" id="screen-face">
+  <h1 class="title" id="faceTitle">Player 1, choose your face</h1>
+  <div class="gtoggle">
+    <button data-g="M">Man</button>
+    <button data-g="F">Woman</button>
+  </div>
+  <div class="facegrid" id="faceGrid"></div>
+  <button class="bigbtn" id="faceNext" disabled>Next</button>
+</section>
+
+<!-- 3. wheel (orbiting ring) -->
+<section class="screen" id="screen-wheel">
+  <div class="wheelwrap">
+    <div class="pointer"></div>
+    <div class="ring" id="ring"></div>
+    <button class="gobtn" id="goBtn">Spin</button>
+  </div>
+</section>
+
+<!-- difficulty page -->
+<section class="screen" id="screen-level">
+  <h1 class="title">Difficulty</h1>
+  <div class="levelgrid">
+  <button class="levelbig lv-EASY" data-l="EASY">Easy</button>
+  <button class="levelbig lv-PLAYFUL" data-l="PLAYFUL">Playful</button>
+  <button class="levelbig lv-TEASING" data-l="TEASING">Teasing</button>
+  <button class="levelbig lv-MEDIUM" data-l="MEDIUM">Medium</button>
+  <button class="levelbig lv-DARING" data-l="DARING">Daring</button>
+  <button class="levelbig lv-HARD" data-l="HARD">Hard</button>
+  <button class="levelbig lv-HEATED" data-l="HEATED">Heated</button>
+  <button class="levelbig lv-EXTREME" data-l="EXTREME">Extreme</button>
+  <button class="levelbig lv-EXPLICIT" data-l="EXPLICIT">Explicit</button>
+  <button class="levelbig lv-HARDCORE" data-l="HARDCORE">Hardcore</button>
+  </div>
+</section>
+
+<!-- 4. turn: pick truth/dare -->
+<section class="screen" id="screen-turn">
+  <div class="turnhead">
+    <div class="bigface" id="turnFace"></div>
+  </div>
+  <div class="slotpanel" id="slotPanel">
+    <div class="slotrow" data-t="TRUTH" id="rowTruth">Truth</div>
+    <div class="slotrow sel" data-t="DARE" id="rowDare">Dare</div>
+  </div>
+</section>
+
+<!-- 5. card -->
+<section class="screen" id="screen-card">
+  <div class="turnhead">
+    <div class="bigface" id="cardFace"></div>
+  </div>
+  <div class="card">
+    <div class="cardtext" id="cardText"></div>
+    <div id="timerZone"></div>
+  </div>
+  <div class="btnrow">
+    <button class="bigbtn alt" id="tryBtn">Punishment</button>
+    <button class="bigbtn" id="doneBtn">Done</button>
+  </div>
+</section>
+
+<!-- editor -->
+<section class="screen" id="screen-editor">
+  <h1 class="title" style="font-size:30px;margin-bottom:10px">Truths &amp; Dares</h1>
+  <div class="edtools" id="edFilters"></div>
+  <div class="edlist" id="edList"></div>
+  <div class="edactions">
+    <button class="addbtn" id="addItem">＋ Add</button>
+    <button class="iobtn" id="exportBtn">Export .txt</button>
+    <button class="iobtn" id="importBtn">Import</button>
+    <button class="iobtn" id="resetBtn">Reset</button>
+    <button class="iobtn" id="edDone">Done</button>
+  </div>
+  <input type="file" id="importFile" accept=".txt,.csv,.tsv,text/plain,text/csv,text/tab-separated-values" style="display:none">
+</section>
+
+<div class="modal" id="editModal">
+  <div class="modalbox">
+    <textarea id="mText" placeholder="Write the truth or dare..."></textarea>
+    <div class="modalrow">
+      <div class="seg" id="mType">
+        <button data-v="TRUTH">Truth</button><button data-v="DARE" class="sel">Dare</button>
+      </div>
+      <div class="seg" id="mLevel">
+        <button data-v="EASY" class="sel">Easy</button><button data-v="PLAYFUL">Playful</button><button data-v="TEASING">Teasing</button><button data-v="MEDIUM">Medium</button><button data-v="DARING">Daring</button><button data-v="HARD">Hard</button><button data-v="HEATED">Heated</button><button data-v="EXTREME">Extreme</button><button data-v="EXPLICIT">Explicit</button><button data-v="HARDCORE">Hardcore</button>
+      </div>
+    </div>
+    <div class="modalrow">
+      <label style="font-weight:800">Timer (sec, optional)</label>
+      <input type="number" id="mTimer" min="0" max="600" placeholder="0">
+    </div>
+    <div class="modalactions">
+      <button class="cancelbtn" id="mCancel">Cancel</button>
+      <button class="savebtn" id="mSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================= FACES ============================= */
+/* ============================= FACES v2 ============================= */
+const SKIN={porc:'#ffe0c2',light:'#ffd6b0',fair:'#f7c99b',tan:'#e0a074',honey:'#d69a63',brown:'#b07a4e',umber:'#8a5a34',deep:'#6b4326'};
+const HAIR={darkbrown:'#4a3120',brown:'#6d4626',chestnut:'#7a4a24',auburn:'#a5471f',ginger:'#d1662a',blonde:'#e6b34d',sand:'#c99a52',black:'#1c140e',jet:'#12100e',grey:'#b8b3ad',steel:'#9aa0a6',white:'#e9e6e2',blue:'#b9cde0'};
+
+/* --- eyes --- */
+function eyesOpen(){
+  return `<g>
+    <ellipse cx="38" cy="51.5" rx="9.6" ry="11.6" fill="#eef6fc"/><ellipse cx="62" cy="51.5" rx="9.6" ry="11.6" fill="#eef6fc"/>
+    <circle cx="39" cy="53" r="6.4" fill="#4a4440"/><circle cx="61" cy="53" r="6.4" fill="#4a4440"/>
+    <circle cx="41" cy="50.4" r="2.3" fill="#fff"/><circle cx="63" cy="50.4" r="2.3" fill="#fff"/>
+    <circle cx="37" cy="55.4" r="1.3" fill="#fff" opacity=".55"/><circle cx="59" cy="55.4" r="1.3" fill="#fff" opacity=".55"/>
+  </g>`;
+}
+function eyesHappy(){ /* closed upward arcs (calm/smiley) */
+  return `<path d="M29 53 Q38 45 47 53" stroke="#4a4440" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+  <path d="M53 53 Q62 45 71 53" stroke="#4a4440" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+}
+function eyesWonky(){
+  return `<g>
+    <ellipse cx="37" cy="50" rx="10.5" ry="12.5" fill="#eef6fc"/><ellipse cx="63" cy="52.5" rx="8" ry="9.5" fill="#eef6fc"/>
+    <circle cx="38.4" cy="52" r="6.4" fill="#4a4440"/><circle cx="62.4" cy="54" r="4" fill="#4a4440"/>
+    <circle cx="40.6" cy="49.6" r="2" fill="#fff"/><circle cx="63.8" cy="52.4" r="1.2" fill="#fff"/>
+  </g>`;
+}
+
+/* --- brows --- */
+function brows(c,uni){
+  if(uni) return `<path d="M28 38 Q50 32 72 38" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  return `<path d="M30 38.5 Q38.5 34.5 47 38" stroke="${c}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <path d="M53 38 Q61.5 34.5 70 38.5" stroke="${c}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+}
+
+/* --- nose (the fix) --- */
+const nose = `<path d="M50 58 Q46.5 66 49.5 67.5" stroke="rgba(150,96,60,.45)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+<ellipse cx="52.4" cy="66.6" rx="2" ry="1.5" fill="rgba(150,96,60,.22)"/>`;
+
+/* --- mouths --- */
+function mouthSmile(){ return `<path d="M40 71 Q50 79 60 71" stroke="#8a3f4b" stroke-width="3.4" fill="none" stroke-linecap="round"/>`; }
+function mouthGrin(){ return `<path d="M35 70 Q50 73.5 65 70 Q67 83 50 84 Q33 83 35 70 Z" fill="#6b2f30"/><path d="M37 70.5 Q50 72.8 63 70.5 Q62 72 50 73 Q38 72 37 70.5 Z" fill="#fff" opacity=".92"/><path d="M45 79 Q50 83.5 55 79 Q50 77 45 79 Z" fill="#d9536a"/>`; }
+function mouthTongue(){ return mouthGrin(); }
+function mouthGap(){ return `<path d="M38 70.5 Q50 82 62 70.5 Z" fill="#6b2f30"/><rect x="41" y="71" width="7.5" height="5.6" rx="2" fill="#fff"/><rect x="51.5" y="71" width="7.5" height="5.6" rx="2" fill="#fff"/>`; }
+function mouthSnaggle(){ return `<path d="M40 71 Q50 80 60 71" stroke="#8a3f4b" stroke-width="3.2" fill="none" stroke-linecap="round"/><rect x="53" y="70.5" width="4.6" height="6.8" rx="1.6" fill="#fff" stroke="#e4dcd2" stroke-width=".7" transform="rotate(9 55 74)"/>`; }
+function mouthO(){ return `<ellipse cx="50" cy="76" rx="4.8" ry="5.8" fill="#6b2f30"/>`; }
+
+const cheeks=`<circle cx="30" cy="64" r="4.6" fill="#f6a3ad" opacity=".38"/><circle cx="70" cy="64" r="4.6" fill="#f6a3ad" opacity=".38"/>`;
+const sheen=`<ellipse cx="42" cy="40" rx="20" ry="15" fill="#fff" opacity=".12"/>`;
+const shade=`<path d="M50 20.4 A35.6 35.6 0 0 1 50 91.6 Q66 74 66 56 Q66 38 50 20.4 Z" fill="rgba(70,38,14,.05)"/>`;
+const freckles=`<g fill="#c8794f" opacity=".7"><circle cx="31" cy="62" r="1"/><circle cx="35" cy="65" r="1"/><circle cx="65" cy="65" r="1"/><circle cx="69" cy="62" r="1"/></g>`;
+const bindi=`<circle cx="50" cy="41" r="2.1" fill="#c0245a"/>`;
+
+/* --- hair / hats --- */
+const H={
+ swoosh:c=>`<path d="M15 52 Q12 16 50 15 Q88 16 85 52 Q85 30 58 27 Q56 34 43 29 Q24 26 21 41 Q16 45 15 52 Z" fill="${c}"/>`,
+ spiky:c=>`<path d="M15 51 Q14 25 27 22 L29 12 L35 22 L41 9 L46 21 L53 8 L59 21 L67 11 L69 22 Q86 25 85 51 Q83 33 50 31 Q17 33 15 51 Z" fill="${c}"/>`,
+ curls:c=>`<g fill="${c}"><circle cx="23" cy="40" r="10"/><circle cx="33" cy="30" r="11"/><circle cx="46" cy="25" r="12"/><circle cx="60" cy="27" r="11"/><circle cx="72" cy="35" r="10"/><circle cx="79" cy="46" r="8"/><path d="M15 53 Q15 37 31 34 L72 35 Q85 39 85 53 Q83 39 50 37 Q17 39 15 53Z"/></g>`,
+ mop:c=>`<path d="M13 55 Q10 15 50 14 Q90 15 87 55 L80 45 L74 53 L66 43 L58 52 L50 42 L42 52 L34 43 L27 53 L20 45 Z" fill="${c}"/>`,
+ quiff:c=>`<path d="M15 51 Q14 23 41 19 Q31 9 53 11 Q77 13 67 23 Q86 27 85 51 Q83 33 50 30 Q17 33 15 51 Z" fill="${c}"/>`,
+ afro:c=>`<g fill="${c}"><circle cx="50" cy="29" r="27"/><circle cx="24" cy="42" r="13"/><circle cx="76" cy="42" r="13"/></g>`,
+ buzz:c=>`<path d="M17 49 Q17 21 50 20 Q83 21 83 49 Q81 31 50 29 Q19 31 17 49 Z" fill="${c}" opacity=".92"/>`,
+ bowl:c=>`<path d="M14 50 Q13 17 50 16 Q87 17 86 50 L84 40 Q84 30 62 27 Q56 33 44 29 Q22 28 16 40 Z" fill="${c}"/>`,
+ baldTuft:c=>`<path d="M13 54 Q13 42 20 38 Q17 50 22 56 Z" fill="${c}"/><path d="M87 54 Q87 42 80 38 Q83 50 78 56 Z" fill="${c}"/>`,
+ madSpike:c=>`<g fill="${c}"><path d="M15 51 Q13 31 25 27 L14 15 L31 21 L29 7 L41 19 L45 3 L53 18 L63 5 L63 19 L77 11 L71 25 L87 21 L79 31 Q86 35 85 51 Q83 35 50 32 Q17 35 15 51 Z"/></g>`,
+};
+/* female hair returns {back, fringe}; back frames the face, fringe covers forehead */
+/* longer, fuller back hair */
+const LBACK=c=>`<path d="M12 44 Q10 12 50 11 Q90 12 88 44 L88 85 Q88 92 79 90 L77 52 Q77 30 50 29 Q23 30 23 52 L21 90 Q12 92 12 85 Z" fill="${c}"/>`;
+/* cute centre-peak bangs (point in the middle of the forehead) */
+const PEAK=c=>`<path d="M19 47 Q18 23 50 21 Q82 23 81 47 Q73 33 57 33 L50 43 L43 33 Q27 33 19 47 Z" fill="${c}"/>`;
+/* soft side-swept bangs */
+const SWEPT=c=>`<path d="M19 47 Q18 23 50 21 Q82 23 81 47 Q76 33 44 32 Q33 42 22 37 Q19 42 19 47 Z" fill="${c}"/>`;
+/* blunt bangs with little points */
+const BLUNT=c=>`<path d="M19 48 Q18 22 50 21 Q82 22 81 48 L79 37 L71 45 L63 35 L55 45 L47 35 L39 45 L31 35 L23 45 L21 38 Z" fill="${c}"/>`;
+const pigPuffs=c=>`<circle cx="12" cy="56" r="11" fill="${c}"/><circle cx="88" cy="56" r="11" fill="${c}"/><path d="M8 62 Q1 80 10 92 Q11 76 16 64 Z" fill="${c}"/><path d="M92 62 Q99 80 90 92 Q89 76 84 64 Z" fill="${c}"/><circle cx="12" cy="64" r="3" fill="#ffd166"/><circle cx="88" cy="64" r="3" fill="#ffd166"/>`;
+const braidTails=c=>`<g fill="${c}"><ellipse cx="15" cy="66" rx="5.5" ry="6"/><ellipse cx="13.5" cy="76" rx="5" ry="5.5"/><ellipse cx="15" cy="85" rx="4" ry="4.5"/><ellipse cx="85" cy="66" rx="5.5" ry="6"/><ellipse cx="86.5" cy="76" rx="5" ry="5.5"/><ellipse cx="85" cy="85" rx="4" ry="4.5"/></g><circle cx="15" cy="60" r="2.6" fill="#ff7bac"/><circle cx="85" cy="60" r="2.6" fill="#ff7bac"/>`;
+const ponyTail=c=>`<path d="M80 30 Q98 44 90 70 Q94 50 78 40 Z" fill="${c}"/><circle cx="80" cy="32" r="4" fill="#ff7bac"/>`;
+const headband=bc=>`<path d="M18 41 Q50 30 82 41 L80 47 Q50 38 20 47 Z" fill="${bc}"/>`;
+
+const FEM={
+ longPeak:c=>({back:LBACK(c), fringe:PEAK(c)}),
+ longSwept:c=>({back:LBACK(c), fringe:SWEPT(c)}),
+ blunt:c=>({back:LBACK(c), fringe:BLUNT(c)}),
+ braids:c=>({back:LBACK(c)+braidTails(c), fringe:PEAK(c)}),
+ pig:c=>({back:LBACK(c)+pigPuffs(c), fringe:PEAK(c)}),
+ pony:c=>({back:LBACK(c)+ponyTail(c), fringe:SWEPT(c)}),
+ bun:c=>({back:`<circle cx="50" cy="13" r="11" fill="${c}"/>${LBACK(c)}`, fringe:PEAK(c)}),
+ band:(c,bc)=>({back:LBACK(c), fringe:PEAK(c)+headband(bc)}),
+ greyBun:c=>({back:`<circle cx="50" cy="14" r="10" fill="${c}"/><path d="M16 48 Q15 24 50 22 Q85 24 84 48 L84 64 Q84 70 78 69 L76 50 Q76 34 50 33 Q24 34 24 50 L22 69 Q16 70 16 64 Z" fill="${c}"/>`, fringe:`<path d="M22 48 Q21 28 50 26 Q79 28 78 48 Q73 36 50 35 Q27 36 22 48 Z" fill="${c}"/>`}),
+ frizz:c=>({back:`<g fill="${c}"><circle cx="20" cy="36" r="10"/><circle cx="14" cy="49" r="8"/><circle cx="28" cy="24" r="10"/><circle cx="41" cy="16" r="10"/><circle cx="55" cy="14" r="10"/><circle cx="69" cy="19" r="10"/><circle cx="81" cy="30" r="9"/><circle cx="87" cy="45" r="8"/><circle cx="16" cy="64" r="7"/><circle cx="84" cy="64" r="7"/></g>`, fringe:`<path d="M20 49 Q19 27 50 25 Q81 27 80 49 Q73 35 62 34 Q56 42 50 35 Q44 42 38 34 Q27 35 20 49 Z" fill="${c}"/>`}),
+};
+const bow=c=>`<path d="M70 22 L60 15 L62 29 Z" fill="${c}"/><path d="M70 22 L80 15 L78 29 Z" fill="${c}"/><circle cx="70" cy="22" r="3.4" fill="${c}"/>`;
+const turban=c=>`<path d="M22 40 Q24 12 50 11 Q76 12 78 40 Q78 30 68 28 L32 28 Q22 30 22 40 Z" fill="${c}"/><path d="M30 30 Q50 22 70 30" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>`;
+const beard=c=>`<path d="M18 58 Q22 88 50 90 Q78 88 82 58 Q78 74 50 76 Q22 74 18 58 Z" fill="${c}"/>`;
+const glasses=`<g stroke="#3a3a3a" stroke-width="2.4" fill="rgba(180,210,235,.25)"><circle cx="38" cy="52" r="11"/><circle cx="62" cy="52" r="11"/><path d="M49 51 h2 M27 50 l-9 -3 M73 50 l9 -3" fill="none"/></g>`;
+const swirlSpecs=`<g stroke="#2f2f2f" fill="rgba(255,255,255,.5)"><circle cx="38" cy="51" r="12" stroke-width="3"/><circle cx="62" cy="51" r="12" stroke-width="3"/><path d="M49 51 h2" stroke-width="3"/><circle cx="38" cy="51" r="6" fill="none" stroke-width="1.5"/><circle cx="62" cy="51" r="6" fill="none" stroke-width="1.5"/></g>`;
+
+/* roster: each entry composes a face.  cx skin, hair back optional, features */
+const FACES={
+ M:[
+  {sk:SKIN.light, hair:H.swoosh(HAIR.brown), mouth:mouthGrin},
+  {sk:SKIN.tan, hair:H.spiky(HAIR.jet), mouth:mouthTongue},
+  {sk:SKIN.light, hair:H.curls(HAIR.ginger), under:freckles, mouth:mouthGrin},
+  {sk:SKIN.fair, hair:H.mop(HAIR.blonde), mouth:mouthGrin},
+  {sk:SKIN.deep, hair:H.quiff(HAIR.jet), mouth:mouthTongue},         /* Black */
+  {sk:SKIN.brown, hair:H.afro(HAIR.jet), mouth:mouthGrin},           /* Black */
+  {sk:SKIN.fair, hair:H.bowl(HAIR.jet), eyes:eyesHappy, mouth:mouthSmile},  /* Asian */
+  {sk:SKIN.honey, hair:beard(HAIR.darkbrown)+turban('#c0392b'), mouth:mouthGrin},  /* Sikh */
+  {sk:SKIN.tan, hair:H.buzz(HAIR.darkbrown), mouth:mouthGrin},
+  {sk:SKIN.light, over:glasses, hair:H.swoosh(HAIR.chestnut), mouth:mouthGrin},   /* glasses cutie */
+  {sk:SKIN.light, hair:H.baldTuft(HAIR.grey), under:'', mouth:mouthGap, ugly:true},          /* ugly 1 */
+  {sk:SKIN.porc, hair:H.madSpike(HAIR.white), over:swirlSpecs, mouth:mouthSnaggle, ugly:true} /* ugly 2 */
+ ],
+ F:[
+  {sk:SKIN.light, fem:FEM.longPeak(HAIR.brown), mouth:mouthGrin},
+  {sk:SKIN.fair, fem:FEM.longSwept(HAIR.blonde), extra:bow('#ff7bac'), mouth:mouthGrin},
+  {sk:SKIN.tan, fem:FEM.braids(HAIR.jet), mouth:mouthTongue},              /* braids */
+  {sk:SKIN.light, fem:FEM.pig(HAIR.ginger), under:freckles, mouth:mouthTongue},   /* pigtails */
+  {sk:SKIN.deep, fem:FEM.pony(HAIR.jet), mouth:mouthGrin},                 /* Black, ponytail */
+  {sk:SKIN.brown, fem:FEM.bun(HAIR.jet), under:bindi, mouth:mouthGrin},    /* Indian */
+  {sk:SKIN.fair, fem:FEM.bun(HAIR.jet), eyes:eyesHappy, mouth:mouthSmile}, /* Asian */
+  {sk:SKIN.honey, fem:FEM.pig(HAIR.darkbrown), mouth:mouthGrin},           /* pigtails 2 */
+  {sk:SKIN.light, fem:FEM.band(HAIR.auburn,'#9b5de5'), mouth:mouthGrin},   /* the one headband */
+  {sk:SKIN.fair, fem:FEM.blunt(HAIR.sand), mouth:mouthGrin},               /* blunt bangs */
+  {sk:SKIN.light, fem:FEM.greyBun(HAIR.blue), mouth:mouthO, ugly:true},    /* grandma */
+  {sk:SKIN.light, fem:FEM.frizz(HAIR.auburn), eyes:eyesWonky, mouth:mouthSnaggle, ugly:true} /* ugly 2 */
+ ]
+};
+
+function faceSVG(g,i){
+  const d=FACES[g][i];
+  const eyeFn=d.eyes||eyesOpen;
+  const mFn=d.mouth||mouthSmile;
+  const back = d.fem ? d.fem.back : (d.back||'');
+  const front = d.fem ? d.fem.fringe : (d.hair||'');
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  ${back}
+  <circle cx="15" cy="56" r="7" fill="${d.sk}"/><circle cx="85" cy="56" r="7" fill="${d.sk}"/>
+  <circle cx="50" cy="56" r="36" fill="${d.sk}"/>
+  ${shade}${sheen}${cheeks}${d.under||''}${nose}${mFn()}${eyeFn()}${brows('#3a2b22')}${front}${d.extra||''}${d.over||''}
+  </svg>`;
+}
+
+/* ============================= DATA ============================= */
+const DEFAULT_ITEMS=[
+ ['DARE','EASY',0,'😏 Swap one clothing item with the player across from you — make the exchange slow and deliberate.'],
+ ['DARE','EASY',20,'😏 Get face-to-face with 😏, lips less than an inch apart. Breathe each other in and hold eye contact — no kissing yet.'],
+ ['DARE','PLAYFUL',20,'😏 Rest your hand on 😏 upper chest over clothing and hold steady eye contact.'],
+ ['DARE','PLAYFUL',15,'😏 Sit on 😏 lap, lean in, and whisper something flirtatious.'],
+ ['DARE','TEASING',30,'😏 Massage 😏 upper inner thigh with fingertips.'],
+ ['DARE','TEASING',45,'😏 Give 😏 a fully clothed lap dance. Their hands stay at their sides the entire time.'],
+ ['DARE','MEDIUM',20,'👩 Touch your butt, nipple, or boob against 👨 bulge through clothing and underwear.'],
+ ['DARE','MEDIUM',20,'😏 Kiss 😏 in several places they choose while they stay completely still.'],
+ ['DARE','DARING',15,'😏 One finger under underwear, no deeper than the length of a finger from the waist.'],
+ ['DARE','DARING',20,'😏 Massage 😏 crotch using only your foot — firm and teasing.'],
+ ['DARE','HARD',60,'😏 Examine 😏 genitals as if you are their doctor. Stay in character for one minute.'],
+ ['DARE','HARD',20,'😏 Rest one finger on 😏 bare genitals for 20 seconds.'],
+ ['DARE','HEATED',30,"😏 Mutually masturbate with 😏, matching each other's rhythm."],
+ ['DARE','HEATED',30,'👩 Place 👨 penis between your boobs and simulate titty fucking.'],
+ ['DARE','EXTREME',0,'😏 Place one hand on 😏 testicles or clit and squeeze slowly until they say it is almost painful.'],
+ ['DARE','EXTREME',20,'👨 Rub your bare penis against 👩 clitoris.'],
+ ['DARE','EXPLICIT',20,'👩 Have 👨 slide one finger inside your pussy and move it slowly for 20 seconds.'],
+ ['DARE','EXPLICIT',20,'👩 Take 👨 penis into your mouth and suck it slowly while holding eye contact.'],
+ ['DARE','HARDCORE',20,'👨 Slowly slide your penis into 👩 vagina, then hold still for 20 seconds while maintaining eye contact.'],
+ ['DARE','HARDCORE',0,'👩 Using your teeth, bite 👨 penis until it hurts — then stop.'],
+ ['TRUTH','EASY',0,'What is the sexiest compliment you have ever given someone? What made you say it?'],
+ ['TRUTH','EASY',0,'What kind of compliment makes you melt? What is a perfect example?'],
+ ['TRUTH','PLAYFUL',0,'What sexual activity do you think is underrated? What makes it feel so good?'],
+ ['TRUTH','PLAYFUL',0,'What voice, sound, or phrase turns you on? What would you want to hear?'],
+ ['TRUTH','TEASING',0,'What would be your ideal role-play? Which role would you play?'],
+ ['TRUTH','TEASING',0,'Have you ever had sex during your period? What was it like?'],
+ ['TRUTH','MEDIUM',0,'What is the most unusual thing you have done during sex? What made it fun?'],
+ ['TRUTH','MEDIUM',0,'What is one fantasy you have never told your closest friend?'],
+ ['TRUTH','DARING',0,'Have you ever fantasized about someone in this room? Who?'],
+ ['TRUTH','DARING',0,'What is at the top of your sexual bucket list?'],
+].map((r,i)=>({id:'d'+i,type:r[0],level:r[1],timer:r[2],text:r[3]}));
+
+/* storage with in-memory fallback */
+const mem={};
+const store={
+  get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]??null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}
+};
+let items=[]; let uid=Date.now();
+function loadItems(){
+  try{const raw=store.get('tod_items'); if(raw){items=JSON.parse(raw); if(Array.isArray(items)&&items.length) return;}}catch(e){}
+  items=JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+}
+function saveItems(){store.set('tod_items',JSON.stringify(items));}
+loadItems();
+
+/* game state */
+const state={count:2, players:[], setupIdx:0, level:'EASY', current:0,
+  used:{}, choice:'DARE', cardItem:null};
+function bucketKey(t,l){return t+'-'+l;}
+function usedSet(t,l){const k=bucketKey(t,l); if(!state.used[k])state.used[k]=[]; return state.used[k];}
+
+/* ============================= AUDIO ============================= */
+let AC=null;
+function ac(){ if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();} if(AC.state==='suspended')AC.resume(); return AC;}
+function env(g,t,a,d,v){g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d);}
+function blip(freq,dur=0.05,vol=0.25,type='square'){
+  try{const c=ac(),o=c.createOscillator(),g=c.createGain();
+  o.type=type;o.frequency.value=freq;o.connect(g);g.connect(c.destination);
+  env(g,c.currentTime,0.005,dur,vol);o.start();o.stop(c.currentTime+dur+0.05);}catch(e){}
+}
+function spinTick(speed){ blip(700+Math.min(900,speed*3),0.03,0.18,'square'); }
+function uiTap(){blip(420,0.04,0.12,'sine');}
+function reveal(){ blip(520,0.1,0.2,'triangle'); setTimeout(()=>blip(780,0.12,0.2,'triangle'),90);}
+function winSound(){ [660,880,1100,1320].forEach((f,i)=>setTimeout(()=>blip(f,0.14,0.25,'triangle'),i*110)); }
+function countTick(){blip(880,0.08,0.3,'square');}
+function buzz(){ try{const c=ac(),o=c.createOscillator(),g=c.createGain();
+  o.type='sawtooth';o.frequency.value=110;o.connect(g);g.connect(c.destination);
+  env(g,c.currentTime,0.01,0.55,0.3);o.start();o.stop(c.currentTime+0.65);}catch(e){} }
+document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
+
+/* ============================= UI HELPERS ============================= */
+const $=id=>document.getElementById(id);
+const APP_VERSION='v9';
+$('verLabel').textContent=APP_VERSION;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');
+  $('levelBtn').style.visibility=(id==='screen-count'||id==='screen-face'||id==='screen-level')?'hidden':'visible';}
+let toastT=null;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* bokeh */
+(function(){const b=$('bokeh');const colors=['#ff7bac','#ffd166','#b039d3','#7bd3ff','#ffffff'];
+ for(let i=0;i<14;i++){const s=document.createElement('span');const sz=40+Math.random()*90;
+  s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;
+  background:${colors[i%colors.length]};animation-delay:${-Math.random()*9}s;animation-duration:${7+Math.random()*6}s`;
+  b.appendChild(s);}})();
+
+/* difficulty */
+let levelReturn='screen-count';
+function renderLevelBtn(){
+  const b=$('levelBtn');
+  b.className='lvlbtn lv-'+state.level;
+  b.textContent=state.level[0]+state.level.slice(1).toLowerCase();
+  document.querySelectorAll('.levelbig').forEach(x=>x.classList.toggle('sel',x.dataset.l===state.level));
+}
+$('levelBtn').onclick=()=>{ uiTap();
+  levelReturn=document.querySelector('.screen.active').id;
+  renderLevelBtn(); show('screen-level'); };
+document.querySelectorAll('.levelbig').forEach(b=>b.onclick=()=>{
+  state.level=b.dataset.l; renderLevelBtn(); uiTap();
+  show(levelReturn);
+  if(levelReturn==='screen-card') drawCard(state.choice,true);
+});
+renderLevelBtn();
+
+/* ============================= SETUP: COUNT ============================= */
+(function(){const row=$('countPills');
+ for(let n=2;n<=5;n++){const b=document.createElement('button');b.className='numpill'+(n===2?' sel':'');
+  b.textContent=n;b.onclick=()=>{state.count=n;row.querySelectorAll('.numpill').forEach(x=>x.classList.toggle('sel',+x.textContent===n));uiTap();};
+  row.appendChild(b);}})();
+$('countNext').onclick=()=>{uiTap();state.players=[];state.setupIdx=0;startFacePick();};
+
+/* ============================= SETUP: FACES ============================= */
+let pickGender='M', pickFace=null;
+function startFacePick(){
+  pickGender='M';pickFace=null;
+  $('faceTitle').textContent=`Player ${state.setupIdx+1}, choose your face`;
+  document.querySelectorAll('.gtoggle button').forEach(b=>b.classList.toggle('sel',b.dataset.g==='M'));
+  $('faceNext').disabled=true; $('faceNext').textContent=(state.setupIdx===state.count-1)?'Start!':'Next';
+  renderFaceGrid(); show('screen-face');
+}
+document.querySelectorAll('.gtoggle button').forEach(b=>b.onclick=()=>{
+  pickGender=b.dataset.g; pickFace=null; $('faceNext').disabled=true; uiTap();
+  document.querySelectorAll('.gtoggle button').forEach(x=>x.classList.toggle('sel',x===b));
+  renderFaceGrid();
+});
+function renderFaceGrid(){
+  const grid=$('faceGrid'); grid.innerHTML='';
+  for(let i=0;i<FACES[pickGender].length;i++){
+    const d=document.createElement('div');
+    const taken=state.players.some(p=>p.g===pickGender&&p.f===i);
+    d.className='faceopt'+(taken?' taken':'');
+    d.innerHTML=faceSVG(pickGender,i);
+    d.onclick=()=>{pickFace=i;uiTap();$('faceNext').disabled=false;
+      grid.querySelectorAll('.faceopt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
+    grid.appendChild(d);
+  }
+}
+$('faceNext').onclick=()=>{
+  if(pickFace===null)return; uiTap();
+  state.players.push({g:pickGender,f:pickFace});
+  state.setupIdx++;
+  if(state.setupIdx<state.count) startFacePick();
+  else buildWheel();
+};
+
+/* ============================= ORBITING WHEEL ============================= */
+let spinning=false, ringAngle=0;
+function buildWheel(){
+  const ring=$('ring'); ring.innerHTML='';
+  state.players.forEach((p,i)=>{
+    const seat=document.createElement('div');
+    seat.className='seat'; seat.id='seat'+i;
+    seat.innerHTML=faceSVG(p.g,p.f);
+    ring.appendChild(seat);
+  });
+  ringAngle=0;
+  show('screen-wheel');
+  // CRITICAL: the wheel must be VISIBLE before measuring, or clientWidth is 0
+  // and every face collapses to the centre. Lay out on the next frame.
+  requestAnimationFrame(()=>{ requestAnimationFrame(layoutSeats); });
+}
+function seatRadius(){
+  const wrap=document.querySelector('.wheelwrap');
+  const seatEl=$('seat0');
+  const seatSz=seatEl?seatEl.offsetWidth:90;
+  return (wrap.clientWidth/2)-(seatSz/2)-6;
+}
+function layoutSeats(){
+  const wrap=document.querySelector('.wheelwrap'); if(!wrap||!wrap.clientWidth)return;
+  const r=seatRadius(), n=state.players.length;
+  state.players.forEach((p,i)=>{
+    const seat=$('seat'+i); if(!seat)return;
+    const a=((360/n)*i-90)*Math.PI/180;   // seat 0 at top
+    seat.dataset.tx=Math.cos(a)*r; seat.dataset.ty=Math.sin(a)*r;
+    seat.style.transform=`translate(${seat.dataset.tx}px,${seat.dataset.ty}px)`;
+  });
+  applyRing();
+}
+function applyRing(){
+  $('ring').style.transform=`rotate(${ringAngle}deg)`;
+  state.players.forEach((p,i)=>{ const s=$('seat'+i); if(!s)return;
+    const svg=s.querySelector('svg'); if(svg) svg.style.transform=`rotate(${-ringAngle}deg)`;
+  });
+}
+window.addEventListener('resize',()=>{ if($('screen-wheel').classList.contains('active')) layoutSeats(); });
+
+$('goBtn').onclick=()=>{ if(spinning)return; spinWheel(); };
+function spinWheel(){
+  spinning=true; uiTap();
+  document.querySelectorAll('.seat').forEach(s=>s.classList.remove('winner'));
+  const n=state.players.length;
+  const winner=Math.floor(Math.random()*n);
+  const seg=360/n;
+  // land so winner (base angle seg*winner-90) rests at the top pointer (-90)
+  const targetMod=((-(seg*winner))%360+360)%360;
+  const curMod=((ringAngle%360)+360)%360;
+  let delta=targetMod-curMod; if(delta<0)delta+=360;
+  const total=360*(4+Math.floor(Math.random()*3))+delta;   // several full turns
+  const start=ringAngle, dur=3200+Math.random()*700, t0=performance.now();
+  let lastSeg=-1;
+  function frame(now){
+    const t=Math.min(1,(now-t0)/dur);
+    const ease=1-Math.pow(1-t,3);
+    ringAngle=start+total*ease;
+    applyRing();
+    const segIdx=Math.floor((((ringAngle-90)%360)+360)%360/seg);
+    if(segIdx!==lastSeg){ spinTick(1); lastSeg=segIdx; }
+    if(t<1) requestAnimationFrame(frame);
+    else{
+      ringAngle=start+total; applyRing();
+      spinning=false; state.current=winner;
+      $('seat'+winner).classList.add('winner');
+      winSound();
+      setTimeout(()=>openTurn(),1000);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================= TURN ============================= */
+function openTurn(){
+  const p=state.players[state.current];
+  $('turnFace').innerHTML=faceSVG(p.g,p.f);
+  setChoice('DARE');
+  show('screen-turn');
+}
+function setChoice(c){
+  state.choice=c;
+  $('rowTruth').classList.toggle('sel',c==='TRUTH');
+  $('rowDare').classList.toggle('sel',c==='DARE');
+}
+$('rowTruth').onclick=()=>{ setChoice('TRUTH'); drawCard('TRUTH'); };
+$('rowDare').onclick=()=>{ setChoice('DARE'); drawCard('DARE'); };
+/* swipe on slot panel */
+(function(){let y0=null;const p=$('slotPanel');
+ p.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;},{passive:true});
+ p.addEventListener('touchend',e=>{ if(y0===null)return;
+   const dy=e.changedTouches[0].clientY-y0; y0=null;
+   if(Math.abs(dy)>30){ setChoice(dy<0?'DARE':'TRUTH'); uiTap(); }});
+})();
+
+/* ============================= CARD ============================= */
+let countdown=null;
+const EMOJI_RE=/(👨|👩|😏)/;
+function performerGender(text){
+  const m=text.match(EMOJI_RE);
+  if(!m) return null;                 // no tag = anyone
+  return m[1]==='👨'?'M':(m[1]==='👩'?'F':null);   // 😏 = anyone
+}
+function faceSpan(p){ return `<span class="inlineface">${faceSVG(p.g,p.f)}</span>`; }
+/* replace opening emoji with the current player's face, inline emojis with target faces */
+function renderDareText(text){
+  const cur=state.players[state.current];
+  if(!EMOJI_RE.test(text)) return faceSpan(cur)+escapeHtml(text);
+  const others=state.players.filter((p,i)=>i!==state.current);
+  const chosen={};
+  function target(g){
+    const key=g||'any';
+    if(chosen[key]) return chosen[key];
+    let pool=g?others.filter(p=>p.g===g):others.slice();
+    if(!pool.length) pool=others.slice();
+    const t=pool.length?pool[Math.floor(Math.random()*pool.length)]:cur;
+    chosen[key]=t; return t;
+  }
+  let first=true, html='';
+  for(const part of text.split(/(👨|👩|😏)/)){
+    if(part==='👨'||part==='👩'||part==='😏'){
+      if(first){ first=false; html+=faceSpan(cur); }
+      else html+=faceSpan(target(part==='👨'?'M':(part==='👩'?'F':null)));
+    } else html+=escapeHtml(part);
+  }
+  return html;
+}
+const LEVEL_ORDER=['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'];
+const TRUTH_CAP_INDEX=2; // 0-based: EASY,PLAYFUL,TEASING map 1:1; index>2 (MEDIUM+) draws from all truths
+function pickItem(type,level){
+  const cg=state.players[state.current]?state.players[state.current].g:null;
+  const capped = type==='TRUTH' && LEVEL_ORDER.indexOf(level) > TRUTH_CAP_INDEX;
+  const bucketLevel = capped ? 'ALL' : level;
+  const matches=it=> it.type===type && (capped ? true : it.level===level);
+  const genderOk=it=>{const pg=performerGender(it.text); return !pg||pg===cg;};
+  const used=usedSet(type,bucketLevel);
+  let pool=items.filter(it=>matches(it)&&genderOk(it)&&!used.includes(it.id));
+  if(!pool.length){
+    // exhausted for this gender: reset the used set and refill (still gender-matched)
+    state.used[bucketKey(type,bucketLevel)]=[];
+    pool=items.filter(it=>matches(it)&&genderOk(it));
+    if(pool.length) toast(`All ${capped?'':level.toLowerCase()+' '}${type.toLowerCase()}s used, shuffling fresh`);
+  }
+  if(!pool.length) pool=items.filter(matches);   // last resort: ignore gender rather than show nothing
+  if(!pool.length) return null;
+  const it=pool[Math.floor(Math.random()*pool.length)];
+  usedSet(type,bucketLevel).push(it.id);
+  return it;
+}
+function renderCard(type,it){
+  state.choice=type;
+  const p=state.players[state.current];
+  $('cardFace').innerHTML=faceSVG(p.g,p.f);
+  if(!it){ $('cardText').innerHTML=`No ${state.level.toLowerCase()} ${type.toLowerCase()}s yet. Add some in the editor (✎).`; $('timerZone').innerHTML=''; return; }
+  $('cardText').innerHTML=renderDareText(it.text);
+  $('timerZone').innerHTML= it.timer>0 ? `<button class="timerbtn" id="startTimer">▶ &nbsp;${it.timer}s</button>` : '';
+  if(it.timer>0) $('startTimer').onclick=()=>runCountdown(it.timer);
+}
+function drawCard(type,keepScreen){
+  stopCountdown();
+  const it=pickItem(type,state.level);
+  state.cardItem=it;
+  // this is the ORIGINAL draw; remember it so Punishment can return
+  state.original={type,it};
+  state.inPunishment=false;
+  $('tryBtn').textContent='Punishment';
+  renderCard(type,it);
+  if(!keepScreen){ reveal(); show('screen-card'); } else { reveal(); }
+}
+/* Punishment toggles: draw a dare penalty, or go back to the original */
+$('tryBtn').onclick=()=>{ uiTap(); stopCountdown();
+  if(!state.inPunishment){
+    const pen=pickItem('DARE',state.level);
+    state.cardItem=pen; state.inPunishment=true;
+    $('tryBtn').textContent='Back to original';
+    renderCard('DARE',pen); reveal();
+  } else {
+    state.inPunishment=false;
+    $('tryBtn').textContent='Punishment';
+    state.cardItem=state.original.it;
+    renderCard(state.original.type,state.original.it); reveal();
+  }
+};
+function runCountdown(sec){
+  stopCountdown(); uiTap();
+  let left=sec;
+  $('timerZone').innerHTML=`<div class="timerbig" id="tBig">${left}</div>`;
+  countdown=setInterval(()=>{
+    left--;
+    const el=$('tBig'); if(!el){stopCountdown();return;}
+    el.textContent=Math.max(0,left);
+    if(left<=5&&left>0){el.classList.add('urgent');countTick();}
+    if(left<=0){ stopCountdown(); el.textContent='Time!'; buzz(); }
+  },1000);
+}
+function stopCountdown(){ if(countdown){clearInterval(countdown);countdown=null;} }
+$('doneBtn').onclick=()=>{ uiTap(); stopCountdown(); buildWheel(); };
+
+/* ============================= EDITOR ============================= */
+let edType='ALL', edLevel='ALL', editing=null, prevScreen='screen-count';
+$('editBtn').onclick=()=>{ prevScreen=document.querySelector('.screen.active').id; renderEditor(); show('screen-editor'); };
+$('edDone').onclick=()=>{ uiTap(); show(prevScreen==='screen-editor'?'screen-count':prevScreen); };
+$('homeBtn').onclick=()=>{ uiTap(); if(confirm('Start a new game?')){ state.used={}; show('screen-count'); } };
+
+function renderEditor(){
+  const f=$('edFilters');
+  const chips=[['ALL','All'],['TRUTH','Truths'],['DARE','Dares']].map(([v,l])=>
+    `<button class="chip ${edType===v?'sel':''}" data-k="type" data-v="${v}">${l}</button>`).join('')+
+    [['ALL','All levels'],['EASY','Easy'],['PLAYFUL','Playful'],['TEASING','Teasing'],['MEDIUM','Medium'],['DARING','Daring'],['HARD','Hard'],['HEATED','Heated'],['EXTREME','Extreme'],['EXPLICIT','Explicit'],['HARDCORE','Hardcore']].map(([v,l])=>
+    `<button class="chip ${edLevel===v?'sel':''}" data-k="level" data-v="${v}">${l}</button>`).join('');
+  f.innerHTML=chips;
+  f.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+    if(c.dataset.k==='type')edType=c.dataset.v; else edLevel=c.dataset.v;
+    uiTap(); renderEditor();});
+  const list=$('edList'); list.innerHTML='';
+  const rows=items.filter(it=>(edType==='ALL'||it.type===edType)&&(edLevel==='ALL'||it.level===edLevel));
+  if(!rows.length){list.innerHTML='<div style="opacity:.7;text-align:center;font-weight:700;padding:30px">Nothing here yet. Tap ＋ Add.</div>';}
+  rows.forEach(it=>{
+    const r=document.createElement('div'); r.className='edrow';
+    r.innerHTML=`<span class="badge ${it.type[0]}">${it.type[0]}</span>
+      <span class="badge lv-${it.level}">${it.level[0]}</span>
+      ${it.timer>0?`<span class="badge tm">⏱${it.timer}s</span>`:''}
+      <div class="txt">${escapeHtml(it.text)}</div>
+      <button title="Edit">✎</button><button title="Delete">🗑</button>`;
+    const [eb,db]=r.querySelectorAll('button');
+    eb.onclick=()=>openModal(it);
+    db.onclick=()=>{ items=items.filter(x=>x.id!==it.id); saveItems(); renderEditor(); toast('Deleted'); };
+    list.appendChild(r);
+  });
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+$('addItem').onclick=()=>openModal(null);
+function openModal(it){
+  editing=it;
+  $('mText').value=it?it.text:'';
+  $('mTimer').value=it&&it.timer>0?it.timer:'';
+  setSeg('mType',it?it.type:'DARE'); setSeg('mLevel',it?it.level:'EASY');
+  $('editModal').classList.add('open'); $('mText').focus();
+}
+function setSeg(id,v){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('sel',b.dataset.v===v));}
+function getSeg(id){return document.querySelector('#'+id+' button.sel').dataset.v;}
+document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; setSeg(seg.id,b.dataset.v); uiTap();}));
+$('mCancel').onclick=()=>$('editModal').classList.remove('open');
+$('mSave').onclick=()=>{
+  const text=$('mText').value.trim(); if(!text){toast('Write something first');return;}
+  const timer=Math.max(0,parseInt($('mTimer').value||'0',10)||0);
+  const type=getSeg('mType'), level=getSeg('mLevel');
+  if(editing){Object.assign(editing,{text,timer,type,level});}
+  else items.push({id:'u'+(uid++),text,timer,type,level});
+  saveItems(); $('editModal').classList.remove('open'); renderEditor(); toast('Saved');
+};
+
+/* import / export */
+$('exportBtn').onclick=()=>{
+  const txt=items.map(it=>`${it.type} | ${it.level} | ${it.timer>0?it.timer+'s':''} | ${it.text}`).join('\n');
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='truth-or-dare-list.txt'; a.click(); URL.revokeObjectURL(a.href);
+  toast('Exported truth-or-dare-list.txt');
+};
+$('importBtn').onclick=()=>$('importFile').click();
+function parseCSVLine(line,delim){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){const ch=line[i];
+    if(q){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+    else{ if(ch==='"') q=true; else if(ch===delim){out.push(cur);cur='';} else cur+=ch; }
+  }
+  out.push(cur); return out;
+}
+function parseImport(raw){
+  const lines=String(raw).split(/\r?\n/).filter(l=>l.trim()!=='');
+  const added=[]; let bad=0;
+  if(!lines.length) return {added,bad};
+  const sample=lines[0];
+  const delim = sample.includes('|') ? '|' : (sample.includes('\t') ? '\t' : ',');
+  let rows=lines.map(l=> delim==='|' ? l.split('|').map(s=>s.trim()) : parseCSVLine(l,delim).map(s=>s.trim()));
+  let map={type:0,level:1,timer:2,text:3};
+  const h=rows[0].map(c=>c.toLowerCase());
+  const headerWords=['type','level','difficulty','timer','seconds','time','text','prompt','content','kind','truth or dare','truth/dare'];
+  if(h.some(c=>headerWords.includes(c))){
+    const find=(names,def)=>{const i=h.findIndex(c=>names.includes(c));return i>=0?i:def;};
+    map={type:find(['type','kind','truth or dare','truth/dare'],0),
+         level:find(['level','difficulty'],1),
+         timer:find(['timer','seconds','time'],2),
+         text:find(['text','prompt','content','description'],3)};
+    rows=rows.slice(1);
+  }
+  rows.forEach(cols=>{
+    const type=(cols[map.type]||'').toUpperCase();
+    let level=(cols[map.level]||'').toUpperCase();
+    if(level==='MED')level='MEDIUM';
+    if(level==='XTREME')level='EXTREME';
+    if(level==='HC')level='HARDCORE';
+    const timer=parseInt(String(cols[map.timer]||'').replace(/[^0-9]/g,''),10)||0;
+    let text=(cols[map.text]||'').trim();
+    if(delim==='|') text=cols.slice(map.text).join(' | ').trim();
+    if(!['TRUTH','DARE'].includes(type)||!['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'].includes(level)||!text){bad++;return;}
+    added.push({type,level,timer,text});
+  });
+  return {added,bad};
+}
+$('importFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const {added,bad}=parseImport(rd.result);
+    if(!added.length){ toast('No valid items found in that file'); e.target.value=''; return; }
+    const replace=confirm(`Found ${added.length} items.\n\nOK = REPLACE your whole list with this file\nCancel = ADD them to your current list`);
+    if(replace){ items=[]; state.used={}; }
+    added.forEach(a=>items.push({id:'u'+(uid++),type:a.type,level:a.level,timer:a.timer,text:a.text}));
+    saveItems(); renderEditor();
+    toast(`${replace?'Replaced with':'Imported'} ${added.length} item${added.length===1?'':'s'}${bad?`, skipped ${bad} bad line${bad===1?'':'s'}`:''}`);
+    e.target.value='';
+  };
+  rd.readAsText(f);
+});
+$('resetBtn').onclick=()=>{
+  if(confirm('Replace everything with the built-in starter list?')){
+    items=JSON.parse(JSON.stringify(DEFAULT_ITEMS)); saveItems(); state.used={}; renderEditor(); toast('Reset to built-ins');
+  }
+};
+
+/* PWA */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+}
+</script>
+</body>
+</html>
