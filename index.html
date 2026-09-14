@@ -19,7 +19,7 @@
   --ink:#ffffff; --ink-dim:rgba(255,255,255,.65);
   --panel:#ffffff; --panel-ink:#1c1023; --panel-dim:#b9b0c2;
   --gold:#ffd166; --pink:#ff7bac; --green:#5be584; --red:#ff5c5c;
-  --easy:#5be584; --medium:#ffd166; --hard:#ff5c5c; --wimpy:#57c7ff; --extreme:#9d0208;
+  --l1:#57c7ff; --l2:#5be584; --l3:#b6e34d; --l4:#ffd166; --l5:#ffa94d; --l6:#ff7b54; --l7:#ff5c5c; --l8:#e5383b; --l9:#a4133c; --l10:#6a040f;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
 html,body{height:100%;}
@@ -109,13 +109,14 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
   font-size:clamp(15px,2.6vw,20px); padding:11px 26px; border-radius:28px; color:#1c1023;
   box-shadow:0 4px 0 rgba(0,0,0,.25);}
 .lvlbtn:active{transform:translateY(2px);}
-.lv-WIMPY{background:var(--wimpy);} .lv-EASY{background:var(--easy);} .lv-MEDIUM{background:var(--medium);} .lv-HARD{background:var(--hard); color:#fff!important;} .lv-EXTREME{background:var(--extreme); color:#fff!important;}
-.levelbig{display:block; width:min(80vw,400px); border:none; cursor:pointer; margin:7px 0;
-  font-family:'Baloo 2'; font-weight:800; font-size:clamp(22px,5.4vw,32px); padding:clamp(11px,2vh,18px);
-  border-radius:26px; color:#1c1023; box-shadow:0 5px 0 rgba(0,0,0,.28); transition:transform .12s;}
+.lv-EASY{background:var(--l1);} .lv-PLAYFUL{background:var(--l2);} .lv-TEASING{background:var(--l3);} .lv-MEDIUM{background:var(--l4);} .lv-DARING{background:var(--l5);} .lv-HARD{background:var(--l6);} .lv-HEATED{background:var(--l7); color:#fff!important;} .lv-EXTREME{background:var(--l8); color:#fff!important;} .lv-EXPLICIT{background:var(--l9); color:#fff!important;} .lv-HARDCORE{background:var(--l10); color:#fff!important;}
+.levelgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(92vw,460px);}
+.levelbig{display:block; width:100%; border:none; cursor:pointer;
+  font-family:'Baloo 2'; font-weight:800; font-size:clamp(17px,4.2vw,23px); padding:clamp(12px,2.3vh,19px) 6px;
+  border-radius:20px; color:#1c1023; box-shadow:0 5px 0 rgba(0,0,0,.28); transition:transform .12s;}
 .levelbig:active{transform:translateY(4px);}
-.levelbig.sel{outline:5px solid #fff;}
-#screen-level .title{margin-bottom:6px; font-size:clamp(26px,6vw,40px);}
+.levelbig.sel{outline:5px solid #fff; outline-offset:-2px;}
+#screen-level .title{margin-bottom:8px; font-size:clamp(26px,6vw,40px);}
 
 /* ---------- turn screen ---------- */
 .turnhead{display:flex; flex-direction:column; align-items:center; gap:6px; margin-bottom:14px;}
@@ -236,11 +237,18 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 <!-- difficulty page -->
 <section class="screen" id="screen-level">
   <h1 class="title">Difficulty</h1>
-  <button class="levelbig lv-WIMPY" data-l="WIMPY">Wimpy</button>
+  <div class="levelgrid">
   <button class="levelbig lv-EASY" data-l="EASY">Easy</button>
+  <button class="levelbig lv-PLAYFUL" data-l="PLAYFUL">Playful</button>
+  <button class="levelbig lv-TEASING" data-l="TEASING">Teasing</button>
   <button class="levelbig lv-MEDIUM" data-l="MEDIUM">Medium</button>
+  <button class="levelbig lv-DARING" data-l="DARING">Daring</button>
   <button class="levelbig lv-HARD" data-l="HARD">Hard</button>
+  <button class="levelbig lv-HEATED" data-l="HEATED">Heated</button>
   <button class="levelbig lv-EXTREME" data-l="EXTREME">Extreme</button>
+  <button class="levelbig lv-EXPLICIT" data-l="EXPLICIT">Explicit</button>
+  <button class="levelbig lv-HARDCORE" data-l="HARDCORE">Hardcore</button>
+  </div>
 </section>
 
 <!-- 4. turn: pick truth/dare -->
@@ -292,7 +300,7 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
         <button data-v="TRUTH">Truth</button><button data-v="DARE" class="sel">Dare</button>
       </div>
       <div class="seg" id="mLevel">
-        <button data-v="WIMPY">Wimpy</button><button data-v="EASY" class="sel">Easy</button><button data-v="MEDIUM">Medium</button><button data-v="HARD">Hard</button><button data-v="EXTREME">Extreme</button>
+        <button data-v="EASY" class="sel">Easy</button><button data-v="PLAYFUL">Playful</button><button data-v="TEASING">Teasing</button><button data-v="MEDIUM">Medium</button><button data-v="DARING">Daring</button><button data-v="HARD">Hard</button><button data-v="HEATED">Heated</button><button data-v="EXTREME">Extreme</button><button data-v="EXPLICIT">Explicit</button><button data-v="HARDCORE">Hardcore</button>
       </div>
     </div>
     <div class="modalrow">
@@ -453,30 +461,36 @@ function faceSVG(g,i){
 
 /* ============================= DATA ============================= */
 const DEFAULT_ITEMS=[
- ['TRUTH','WIMPY',0,"What's your favorite thing to do on a lazy Sunday?"],
- ['TRUTH','WIMPY',0,"What snack could you eat every single day?"],
- ['TRUTH','WIMPY',0,"What's the best gift you've ever gotten?"],
- ['TRUTH','EASY',0,"What's the most embarrassing song you secretly love?"],
- ['TRUTH','EASY',0,"What's the last thing you Googled?"],
- ['TRUTH','EASY',0,"What's your most useless talent?"],
- ['TRUTH','MEDIUM',0,"What's the most embarrassing thing in your camera roll right now?"],
- ['TRUTH','MEDIUM',0,"What's a lie you've told someone in this room?"],
- ['TRUTH','MEDIUM',0,"What was your worst kiss ever?"],
- ['TRUTH','HARD',0,"What's the biggest secret you've kept from your parents?"],
- ['TRUTH','HARD',0,"What text would ruin you if it was read out loud right now?"],
- ['TRUTH','HARD',0,"Describe your most embarrassing date in detail."],
- ['DARE','WIMPY',0,"Give the player on your right a high five and a compliment."],
- ['DARE','WIMPY',0,"Do your happiest little dance for five seconds."],
- ['DARE','WIMPY',0,"Talk in a cartoon voice until your next turn."],
- ['DARE','EASY',0,"Speak in a terrible accent until your next turn."],
- ['DARE','EASY',0,"Do your best runway walk across the room."],
- ['DARE','EASY',0,"Let the group pose you like a statue for a photo."],
- ['DARE','MEDIUM',30,"Hold a plank while the group asks you questions."],
- ['DARE','MEDIUM',0,"Let the player to your left restyle your hair however they want."],
- ['DARE','MEDIUM',60,"Keep a straight face while everyone tries to make you laugh."],
- ['DARE','HARD',0,"Call a friend and sing them happy birthday. It is not their birthday."],
- ['DARE','HARD',30,"Dance with no music while everyone watches in silence."],
- ['DARE','HARD',0,"Swap one clothing item with the player across from you."]
+ ['DARE','EASY',0,'😏 Swap one clothing item with the player across from you — make the exchange slow and deliberate.'],
+ ['DARE','EASY',20,'😏 Get face-to-face with 😏, lips less than an inch apart. Breathe each other in and hold eye contact — no kissing yet.'],
+ ['DARE','PLAYFUL',20,'😏 Rest your hand on 😏 upper chest over clothing and hold steady eye contact.'],
+ ['DARE','PLAYFUL',15,'😏 Sit on 😏 lap, lean in, and whisper something flirtatious.'],
+ ['DARE','TEASING',30,'😏 Massage 😏 upper inner thigh with fingertips.'],
+ ['DARE','TEASING',45,'😏 Give 😏 a fully clothed lap dance. Their hands stay at their sides the entire time.'],
+ ['DARE','MEDIUM',20,'👩 Touch your butt, nipple, or boob against 👨 bulge through clothing and underwear.'],
+ ['DARE','MEDIUM',20,'😏 Kiss 😏 in several places they choose while they stay completely still.'],
+ ['DARE','DARING',15,'😏 One finger under underwear, no deeper than the length of a finger from the waist.'],
+ ['DARE','DARING',20,'😏 Massage 😏 crotch using only your foot — firm and teasing.'],
+ ['DARE','HARD',60,'😏 Examine 😏 genitals as if you are their doctor. Stay in character for one minute.'],
+ ['DARE','HARD',20,'😏 Rest one finger on 😏 bare genitals for 20 seconds.'],
+ ['DARE','HEATED',30,"😏 Mutually masturbate with 😏, matching each other's rhythm."],
+ ['DARE','HEATED',30,'👩 Place 👨 penis between your boobs and simulate titty fucking.'],
+ ['DARE','EXTREME',0,'😏 Place one hand on 😏 testicles or clit and squeeze slowly until they say it is almost painful.'],
+ ['DARE','EXTREME',20,'👨 Rub your bare penis against 👩 clitoris.'],
+ ['DARE','EXPLICIT',20,'👩 Have 👨 slide one finger inside your pussy and move it slowly for 20 seconds.'],
+ ['DARE','EXPLICIT',20,'👩 Take 👨 penis into your mouth and suck it slowly while holding eye contact.'],
+ ['DARE','HARDCORE',20,'👨 Slowly slide your penis into 👩 vagina, then hold still for 20 seconds while maintaining eye contact.'],
+ ['DARE','HARDCORE',0,'👩 Using your teeth, bite 👨 penis until it hurts — then stop.'],
+ ['TRUTH','EASY',0,'What is the sexiest compliment you have ever given someone? What made you say it?'],
+ ['TRUTH','EASY',0,'What kind of compliment makes you melt? What is a perfect example?'],
+ ['TRUTH','PLAYFUL',0,'What sexual activity do you think is underrated? What makes it feel so good?'],
+ ['TRUTH','PLAYFUL',0,'What voice, sound, or phrase turns you on? What would you want to hear?'],
+ ['TRUTH','TEASING',0,'What would be your ideal role-play? Which role would you play?'],
+ ['TRUTH','TEASING',0,'Have you ever had sex during your period? What was it like?'],
+ ['TRUTH','MEDIUM',0,'What is the most unusual thing you have done during sex? What made it fun?'],
+ ['TRUTH','MEDIUM',0,'What is one fantasy you have never told your closest friend?'],
+ ['TRUTH','DARING',0,'Have you ever fantasized about someone in this room? Who?'],
+ ['TRUTH','DARING',0,'What is at the top of your sexual bucket list?'],
 ].map((r,i)=>({id:'d'+i,type:r[0],level:r[1],timer:r[2],text:r[3]}));
 
 /* storage with in-memory fallback */
@@ -494,7 +508,7 @@ function saveItems(){store.set('tod_items',JSON.stringify(items));}
 loadItems();
 
 /* game state */
-const state={count:2, players:[], setupIdx:0, level:'MEDIUM', current:0,
+const state={count:2, players:[], setupIdx:0, level:'EASY', current:0,
   used:{}, choice:'DARE', cardItem:null};
 function bucketKey(t,l){return t+'-'+l;}
 function usedSet(t,l){const k=bucketKey(t,l); if(!state.used[k])state.used[k]=[]; return state.used[k];}
@@ -520,7 +534,7 @@ document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
 
 /* ============================= UI HELPERS ============================= */
 const $=id=>document.getElementById(id);
-const APP_VERSION='v7';
+const APP_VERSION='v9';
 $('verLabel').textContent=APP_VERSION;
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');
   $('levelBtn').style.visibility=(id==='screen-count'||id==='screen-face'||id==='screen-level')?'hidden':'visible';}
@@ -692,26 +706,64 @@ $('rowDare').onclick=()=>{ setChoice('DARE'); drawCard('DARE'); };
 
 /* ============================= CARD ============================= */
 let countdown=null;
-function pickItem(type,level){
-  const used=usedSet(type,level);
-  let pool=items.filter(it=>it.type===type&&it.level===level&&!used.includes(it.id));
-  if(!pool.length){
-    state.used[bucketKey(type,level)]=[];
-    pool=items.filter(it=>it.type===type&&it.level===level);
-    if(pool.length) toast(`All ${level.toLowerCase()} ${type.toLowerCase()}s used, shuffling fresh`);
+const EMOJI_RE=/(👨|👩|😏)/;
+function performerGender(text){
+  const m=text.match(EMOJI_RE);
+  if(!m) return null;                 // no tag = anyone
+  return m[1]==='👨'?'M':(m[1]==='👩'?'F':null);   // 😏 = anyone
+}
+function faceSpan(p){ return `<span class="inlineface">${faceSVG(p.g,p.f)}</span>`; }
+/* replace opening emoji with the current player's face, inline emojis with target faces */
+function renderDareText(text){
+  const cur=state.players[state.current];
+  if(!EMOJI_RE.test(text)) return faceSpan(cur)+escapeHtml(text);
+  const others=state.players.filter((p,i)=>i!==state.current);
+  const chosen={};
+  function target(g){
+    const key=g||'any';
+    if(chosen[key]) return chosen[key];
+    let pool=g?others.filter(p=>p.g===g):others.slice();
+    if(!pool.length) pool=others.slice();
+    const t=pool.length?pool[Math.floor(Math.random()*pool.length)]:cur;
+    chosen[key]=t; return t;
   }
+  let first=true, html='';
+  for(const part of text.split(/(👨|👩|😏)/)){
+    if(part==='👨'||part==='👩'||part==='😏'){
+      if(first){ first=false; html+=faceSpan(cur); }
+      else html+=faceSpan(target(part==='👨'?'M':(part==='👩'?'F':null)));
+    } else html+=escapeHtml(part);
+  }
+  return html;
+}
+const LEVEL_ORDER=['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'];
+const TRUTH_CAP_INDEX=2; // 0-based: EASY,PLAYFUL,TEASING map 1:1; index>2 (MEDIUM+) draws from all truths
+function pickItem(type,level){
+  const cg=state.players[state.current]?state.players[state.current].g:null;
+  const capped = type==='TRUTH' && LEVEL_ORDER.indexOf(level) > TRUTH_CAP_INDEX;
+  const bucketLevel = capped ? 'ALL' : level;
+  const matches=it=> it.type===type && (capped ? true : it.level===level);
+  const genderOk=it=>{const pg=performerGender(it.text); return !pg||pg===cg;};
+  const used=usedSet(type,bucketLevel);
+  let pool=items.filter(it=>matches(it)&&genderOk(it)&&!used.includes(it.id));
+  if(!pool.length){
+    // exhausted for this gender: reset the used set and refill (still gender-matched)
+    state.used[bucketKey(type,bucketLevel)]=[];
+    pool=items.filter(it=>matches(it)&&genderOk(it));
+    if(pool.length) toast(`All ${capped?'':level.toLowerCase()+' '}${type.toLowerCase()}s used, shuffling fresh`);
+  }
+  if(!pool.length) pool=items.filter(matches);   // last resort: ignore gender rather than show nothing
   if(!pool.length) return null;
   const it=pool[Math.floor(Math.random()*pool.length)];
-  usedSet(type,level).push(it.id);
+  usedSet(type,bucketLevel).push(it.id);
   return it;
 }
 function renderCard(type,it){
   state.choice=type;
   const p=state.players[state.current];
   $('cardFace').innerHTML=faceSVG(p.g,p.f);
-  const face=`<span class="inlineface">${faceSVG(p.g,p.f)}</span>`;
   if(!it){ $('cardText').innerHTML=`No ${state.level.toLowerCase()} ${type.toLowerCase()}s yet. Add some in the editor (✎).`; $('timerZone').innerHTML=''; return; }
-  $('cardText').innerHTML=face+escapeHtml(it.text);
+  $('cardText').innerHTML=renderDareText(it.text);
   $('timerZone').innerHTML= it.timer>0 ? `<button class="timerbtn" id="startTimer">▶ &nbsp;${it.timer}s</button>` : '';
   if(it.timer>0) $('startTimer').onclick=()=>runCountdown(it.timer);
 }
@@ -765,7 +817,7 @@ function renderEditor(){
   const f=$('edFilters');
   const chips=[['ALL','All'],['TRUTH','Truths'],['DARE','Dares']].map(([v,l])=>
     `<button class="chip ${edType===v?'sel':''}" data-k="type" data-v="${v}">${l}</button>`).join('')+
-    [['ALL','All levels'],['WIMPY','Wimpy'],['EASY','Easy'],['MEDIUM','Medium'],['HARD','Hard'],['EXTREME','Extreme']].map(([v,l])=>
+    [['ALL','All levels'],['EASY','Easy'],['PLAYFUL','Playful'],['TEASING','Teasing'],['MEDIUM','Medium'],['DARING','Daring'],['HARD','Hard'],['HEATED','Heated'],['EXTREME','Extreme'],['EXPLICIT','Explicit'],['HARDCORE','Hardcore']].map(([v,l])=>
     `<button class="chip ${edLevel===v?'sel':''}" data-k="level" data-v="${v}">${l}</button>`).join('');
   f.innerHTML=chips;
   f.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
@@ -850,12 +902,12 @@ function parseImport(raw){
     const type=(cols[map.type]||'').toUpperCase();
     let level=(cols[map.level]||'').toUpperCase();
     if(level==='MED')level='MEDIUM';
-    if(level==='WIMP')level='WIMPY';
-    if(level==='EXTREEME'||level==='XTREME')level='EXTREME';
+    if(level==='XTREME')level='EXTREME';
+    if(level==='HC')level='HARDCORE';
     const timer=parseInt(String(cols[map.timer]||'').replace(/[^0-9]/g,''),10)||0;
     let text=(cols[map.text]||'').trim();
     if(delim==='|') text=cols.slice(map.text).join(' | ').trim();
-    if(!['TRUTH','DARE'].includes(type)||!['WIMPY','EASY','MEDIUM','HARD','EXTREME'].includes(level)||!text){bad++;return;}
+    if(!['TRUTH','DARE'].includes(type)||!['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'].includes(level)||!text){bad++;return;}
     added.push({type,level,timer,text});
   });
   return {added,bad};
