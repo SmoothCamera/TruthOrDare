@@ -109,6 +109,9 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
   font-size:clamp(15px,2.6vw,20px); padding:11px 26px; border-radius:28px; color:#1c1023;
   box-shadow:0 4px 0 rgba(0,0,0,.25);}
 .lvlbtn:active{transform:translateY(2px);}
+.lvlgroup{display:flex; align-items:center; gap:10px;}
+.arrowbtn{background:rgba(255,255,255,.16); border:none; color:#fff; width:46px; height:46px; border-radius:50%; font-family:'Baloo 2'; font-weight:800; font-size:34px; line-height:1; padding:0 0 4px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.arrowbtn:active{transform:scale(.92);}
 .lv-EASY{background:var(--l1);} .lv-PLAYFUL{background:var(--l2);} .lv-TEASING{background:var(--l3);} .lv-MEDIUM{background:var(--l4);} .lv-DARING{background:var(--l5);} .lv-HARD{background:var(--l6);} .lv-HEATED{background:var(--l7); color:#fff!important;} .lv-EXTREME{background:var(--l8); color:#fff!important;} .lv-EXPLICIT{background:var(--l9); color:#fff!important;} .lv-HARDCORE{background:var(--l10); color:#fff!important;}
 .levelgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(92vw,460px);}
 .levelbig{display:block; width:100%; border:none; cursor:pointer;
@@ -131,7 +134,7 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 .slot-or{font-size:20px; letter-spacing:3px; color:#8a7f95; padding:4px; cursor:default;
   border-top:1px solid #eee; border-bottom:1px solid #eee;}
 .hint{margin-top:14px; color:var(--ink-dim); font-size:15px; font-weight:700;}
-.verlabel{position:fixed; top:20px; left:74px; z-index:6; font-family:'Baloo 2'; font-weight:800;
+.verlabel{position:fixed; top:64px; left:22px; z-index:6; font-family:'Baloo 2'; font-weight:800;
   font-size:13px; color:rgba(255,255,255,.7); letter-spacing:.5px; pointer-events:none;}
 .inlineface{display:inline-block; width:1.05em; height:1.05em; vertical-align:-.2em; margin-right:.12em;}
 .inlineface svg{width:100%;height:100%;display:block;}
@@ -203,7 +206,11 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 <div class="topbar">
   <button class="iconbtn" id="homeBtn" title="New game">⌂</button>
   <div class="verlabel" id="verLabel"></div>
-  <button class="lvlbtn" id="levelBtn">Medium</button>
+  <div class="lvlgroup" id="levelGroup">
+    <button class="arrowbtn" id="lvlPrev" aria-label="Easier level">&#8249;</button>
+    <button class="lvlbtn" id="levelBtn">Easy</button>
+    <button class="arrowbtn" id="lvlNext" aria-label="Harder level">&#8250;</button>
+  </div>
   <button class="iconbtn" id="editBtn" title="Edit truths &amp; dares">✎</button>
 </div>
 
@@ -512,6 +519,21 @@ const state={count:2, players:[], setupIdx:0, level:'EASY', current:0,
   used:{}, choice:'DARE', cardItem:null};
 function bucketKey(t,l){return t+'-'+l;}
 function usedSet(t,l){const k=bucketKey(t,l); if(!state.used[k])state.used[k]=[]; return state.used[k];}
+/* remember which items were already shown, even after the app is closed and reopened */
+function loadUsed(){
+  try{const raw=store.get('tod_used'); if(raw){const o=JSON.parse(raw); if(o&&typeof o==='object'){
+    const ids=new Set(items.map(i=>i.id));
+    for(const k in o){ if(Array.isArray(o[k])){ const kept=o[k].filter(id=>ids.has(id)); if(kept.length) state.used[k]=kept; } }
+  }}}catch(e){}
+}
+function saveUsed(){store.set('tod_used',JSON.stringify(state.used));}
+function clearUsed(){state.used={}; saveUsed();}
+function randInt(n){
+  if(n<=1) return 0;
+  try{ const a=new Uint32Array(1), lim=Math.floor(4294967296/n)*n; let x; do{crypto.getRandomValues(a); x=a[0];}while(x>=lim); return x%n; }
+  catch(e){ return Math.floor(Math.random()*n); }
+}
+loadUsed();
 
 /* ============================= AUDIO ============================= */
 let AC=null;
@@ -534,10 +556,11 @@ document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
 
 /* ============================= UI HELPERS ============================= */
 const $=id=>document.getElementById(id);
-const APP_VERSION='v9';
+const APP_VERSION='v10';
+const LEVEL_ORDER=['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'];
 $('verLabel').textContent=APP_VERSION;
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');
-  $('levelBtn').style.visibility=(id==='screen-count'||id==='screen-face'||id==='screen-level')?'hidden':'visible';}
+  $('levelGroup').style.visibility=(id==='screen-count'||id==='screen-face'||id==='screen-level')?'hidden':'visible';}
 let toastT=null;
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
@@ -556,14 +579,25 @@ function renderLevelBtn(){
   b.className='lvlbtn lv-'+state.level;
   b.textContent=state.level[0]+state.level.slice(1).toLowerCase();
   document.querySelectorAll('.levelbig').forEach(x=>x.classList.toggle('sel',x.dataset.l===state.level));
+  const li=LEVEL_ORDER.indexOf(state.level);
+  $('lvlPrev').style.visibility = li>0 ? 'visible' : 'hidden';
+  $('lvlNext').style.visibility = li<LEVEL_ORDER.length-1 ? 'visible' : 'hidden';
 }
+function stepLevel(d){
+  const i=LEVEL_ORDER.indexOf(state.level)+d;
+  if(i<0||i>=LEVEL_ORDER.length) return;
+  state.level=LEVEL_ORDER[i]; renderLevelBtn(); uiTap();
+  if($('screen-card').classList.contains('active')) drawCard(state.original?state.original.type:state.choice,true);
+}
+$('lvlPrev').onclick=()=>stepLevel(-1);
+$('lvlNext').onclick=()=>stepLevel(1);
 $('levelBtn').onclick=()=>{ uiTap();
   levelReturn=document.querySelector('.screen.active').id;
   renderLevelBtn(); show('screen-level'); };
 document.querySelectorAll('.levelbig').forEach(b=>b.onclick=()=>{
   state.level=b.dataset.l; renderLevelBtn(); uiTap();
   show(levelReturn);
-  if(levelReturn==='screen-card') drawCard(state.choice,true);
+  if(levelReturn==='screen-card') drawCard(state.original?state.original.type:state.choice,true);
 });
 renderLevelBtn();
 
@@ -736,7 +770,6 @@ function renderDareText(text){
   }
   return html;
 }
-const LEVEL_ORDER=['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'];
 const TRUTH_CAP_INDEX=2; // 0-based: EASY,PLAYFUL,TEASING map 1:1; index>2 (MEDIUM+) draws from all truths
 function pickItem(type,level){
   const cg=state.players[state.current]?state.players[state.current].g:null;
@@ -744,18 +777,24 @@ function pickItem(type,level){
   const bucketLevel = capped ? 'ALL' : level;
   const matches=it=> it.type===type && (capped ? true : it.level===level);
   const genderOk=it=>{const pg=performerGender(it.text); return !pg||pg===cg;};
-  const used=usedSet(type,bucketLevel);
-  let pool=items.filter(it=>matches(it)&&genderOk(it)&&!used.includes(it.id));
-  if(!pool.length){
-    // exhausted for this gender: reset the used set and refill (still gender-matched)
-    state.used[bucketKey(type,bucketLevel)]=[];
-    pool=items.filter(it=>matches(it)&&genderOk(it));
-    if(pool.length) toast(`All ${capped?'':level.toLowerCase()+' '}${type.toLowerCase()}s used, shuffling fresh`);
+  const eligible=items.filter(it=>matches(it)&&genderOk(it));
+  let used=usedSet(type,bucketLevel);
+  let pool=eligible.filter(it=>!used.includes(it.id));
+  if(!pool.length && eligible.length){
+    // every eligible item has been shown: start a fresh round for this level,
+    // but keep the most recent one benched so it cannot come straight back
+    const ids=new Set(eligible.map(it=>it.id));
+    const last=used.filter(id=>ids.has(id)).pop();
+    state.used[bucketKey(type,bucketLevel)]=used.filter(id=>!ids.has(id)).concat(eligible.length>1&&last?[last]:[]);
+    used=usedSet(type,bucketLevel);
+    pool=eligible.filter(it=>!used.includes(it.id));
+    toast(`All ${capped?'':level.toLowerCase()+' '}${type.toLowerCase()}s used, shuffling fresh`);
   }
   if(!pool.length) pool=items.filter(matches);   // last resort: ignore gender rather than show nothing
   if(!pool.length) return null;
-  const it=pool[Math.floor(Math.random()*pool.length)];
+  const it=pool[randInt(pool.length)];
   usedSet(type,bucketLevel).push(it.id);
+  saveUsed();
   return it;
 }
 function renderCard(type,it){
@@ -811,7 +850,7 @@ $('doneBtn').onclick=()=>{ uiTap(); stopCountdown(); buildWheel(); };
 let edType='ALL', edLevel='ALL', editing=null, prevScreen='screen-count';
 $('editBtn').onclick=()=>{ prevScreen=document.querySelector('.screen.active').id; renderEditor(); show('screen-editor'); };
 $('edDone').onclick=()=>{ uiTap(); show(prevScreen==='screen-editor'?'screen-count':prevScreen); };
-$('homeBtn').onclick=()=>{ uiTap(); if(confirm('Start a new game?')){ state.used={}; show('screen-count'); } };
+$('homeBtn').onclick=()=>{ uiTap(); if(confirm('Start a new game?')){ show('screen-count'); } };
 
 function renderEditor(){
   const f=$('edFilters');
@@ -919,7 +958,7 @@ $('importFile').addEventListener('change',e=>{
     const {added,bad}=parseImport(rd.result);
     if(!added.length){ toast('No valid items found in that file'); e.target.value=''; return; }
     const replace=confirm(`Found ${added.length} items.\n\nOK = REPLACE your whole list with this file\nCancel = ADD them to your current list`);
-    if(replace){ items=[]; state.used={}; }
+    if(replace){ items=[]; clearUsed(); }
     added.forEach(a=>items.push({id:'u'+(uid++),type:a.type,level:a.level,timer:a.timer,text:a.text}));
     saveItems(); renderEditor();
     toast(`${replace?'Replaced with':'Imported'} ${added.length} item${added.length===1?'':'s'}${bad?`, skipped ${bad} bad line${bad===1?'':'s'}`:''}`);
@@ -929,7 +968,7 @@ $('importFile').addEventListener('change',e=>{
 });
 $('resetBtn').onclick=()=>{
   if(confirm('Replace everything with the built-in starter list?')){
-    items=JSON.parse(JSON.stringify(DEFAULT_ITEMS)); saveItems(); state.used={}; renderEditor(); toast('Reset to built-ins');
+    items=JSON.parse(JSON.stringify(DEFAULT_ITEMS)); saveItems(); clearUsed(); renderEditor(); toast('Reset to built-ins');
   }
 };
 
