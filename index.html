@@ -112,7 +112,7 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 .lvlgroup{display:flex; align-items:center; gap:10px;}
 .arrowbtn{background:rgba(255,255,255,.16); border:none; color:#fff; width:46px; height:46px; border-radius:50%; font-family:'Baloo 2'; font-weight:800; font-size:34px; line-height:1; padding:0 0 4px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .arrowbtn:active{transform:scale(.92);}
-.lv-EASY{background:var(--l1);} .lv-PLAYFUL{background:var(--l2);} .lv-TEASING{background:var(--l3);} .lv-MEDIUM{background:var(--l4);} .lv-DARING{background:var(--l5);} .lv-HARD{background:var(--l6);} .lv-HEATED{background:var(--l7); color:#fff!important;} .lv-EXTREME{background:var(--l8); color:#fff!important;} .lv-EXPLICIT{background:var(--l9); color:#fff!important;} .lv-HARDCORE{background:var(--l10); color:#fff!important;}
+.lv-1{background:var(--l1);} .lv-2{background:var(--l2);} .lv-3{background:var(--l3);} .lv-4{background:var(--l4);} .lv-5{background:var(--l5);} .lv-6{background:var(--l6);} .lv-7{background:var(--l7); color:#fff!important;} .lv-8{background:var(--l8); color:#fff!important;} .lv-9{background:var(--l9); color:#fff!important;} .lv-10{background:var(--l10); color:#fff!important;}
 .levelgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(92vw,460px);}
 .levelbig{display:block; width:100%; border:none; cursor:pointer;
   font-family:'Baloo 2'; font-weight:800; font-size:clamp(17px,4.2vw,23px); padding:clamp(12px,2.3vh,19px) 6px;
@@ -120,6 +120,27 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 .levelbig:active{transform:translateY(4px);}
 .levelbig.sel{outline:5px solid #fff; outline-offset:-2px;}
 #screen-level .title{margin-bottom:8px; font-size:clamp(26px,6vw,40px);}
+.levelbig{font-size:clamp(28px,6.4vw,38px);}
+.iconbtn-spacer{width:46px; height:46px;}
+.menulist{display:flex; flex-direction:column; gap:16px; width:min(86vw,440px);}
+.menubtn{border:none; cursor:pointer; background:#fff; color:var(--pill); font-family:'Baloo 2'; font-weight:800; font-size:clamp(26px,6vw,36px); padding:clamp(20px,3.4vh,30px) 20px; border-radius:30px; box-shadow:0 7px 0 rgba(0,0,0,.28);}
+.menubtn:active{transform:translateY(4px);}
+#screen-howto{justify-content:flex-start; align-items:center; padding:76px 0 40px; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.howwrap{width:min(94vw,640px); display:flex; flex-direction:column; align-items:stretch; padding-bottom:30px;}
+.howwrap .title{margin:0 0 14px; text-align:center;}
+.howh{font-family:'Baloo 2'; font-weight:800; font-size:24px; margin:14px 0 6px;}
+.howp{font-weight:700; font-size:16px; line-height:1.45; color:rgba(255,255,255,.9); margin:0 0 12px;}
+.howp.small{font-size:14px; opacity:.85;}
+.lvlist{display:flex; flex-direction:column; gap:8px; margin:6px 0 12px;}
+.lvrow{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.12); border-radius:16px; padding:10px 14px;}
+.lvnum{flex:none; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:22px; color:#1c1023;}
+.lvbody{flex:1; min-width:0;}
+.lvname{font-family:'Baloo 2'; font-weight:800; font-size:20px; line-height:1.1;}
+.lvadds{font-weight:700; font-size:14px; opacity:.9; line-height:1.3;}
+.lvcount{flex:none; text-align:center; font-family:'Baloo 2'; line-height:1; min-width:58px;}
+.lvcount b{display:block; font-size:24px;}
+.lvcount span{font-size:12px; opacity:.8; font-weight:700;}
+.lvfield{display:flex; align-items:center; gap:8px; font-weight:800;}
 
 /* ---------- turn screen ---------- */
 .turnhead{display:flex; flex-direction:column; align-items:center; gap:6px; margin-bottom:14px;}
@@ -204,14 +225,14 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 <div class="bokeh" id="bokeh"></div>
 
 <div class="topbar">
-  <button class="iconbtn" id="homeBtn" title="New game">⌂</button>
+  <button class="iconbtn" id="menuBtn" title="Menu" aria-label="Menu">&#9776;</button>
   <div class="verlabel" id="verLabel"></div>
   <div class="lvlgroup" id="levelGroup">
     <button class="arrowbtn" id="lvlPrev" aria-label="Easier level">&#8249;</button>
     <button class="lvlbtn" id="levelBtn">Easy</button>
     <button class="arrowbtn" id="lvlNext" aria-label="Harder level">&#8250;</button>
   </div>
-  <button class="iconbtn" id="editBtn" title="Edit truths &amp; dares">✎</button>
+  <div class="iconbtn-spacer"></div>
 </div>
 
 <!-- 1. player count -->
@@ -245,17 +266,32 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
 <section class="screen" id="screen-level">
   <h1 class="title">Difficulty</h1>
   <div class="levelgrid">
-  <button class="levelbig lv-EASY" data-l="EASY">Easy</button>
-  <button class="levelbig lv-PLAYFUL" data-l="PLAYFUL">Playful</button>
-  <button class="levelbig lv-TEASING" data-l="TEASING">Teasing</button>
-  <button class="levelbig lv-MEDIUM" data-l="MEDIUM">Medium</button>
-  <button class="levelbig lv-DARING" data-l="DARING">Daring</button>
-  <button class="levelbig lv-HARD" data-l="HARD">Hard</button>
-  <button class="levelbig lv-HEATED" data-l="HEATED">Heated</button>
-  <button class="levelbig lv-EXTREME" data-l="EXTREME">Extreme</button>
-  <button class="levelbig lv-EXPLICIT" data-l="EXPLICIT">Explicit</button>
-  <button class="levelbig lv-HARDCORE" data-l="HARDCORE">Hardcore</button>
+  <button class="levelbig lv-1" data-l="1">1</button>
+  <button class="levelbig lv-2" data-l="2">2</button>
+  <button class="levelbig lv-3" data-l="3">3</button>
+  <button class="levelbig lv-4" data-l="4">4</button>
+  <button class="levelbig lv-5" data-l="5">5</button>
+  <button class="levelbig lv-6" data-l="6">6</button>
+  <button class="levelbig lv-7" data-l="7">7</button>
+  <button class="levelbig lv-8" data-l="8">8</button>
+  <button class="levelbig lv-9" data-l="9">9</button>
+  <button class="levelbig lv-10" data-l="10">10</button>
   </div>
+</section>
+
+<!-- main menu -->
+<section class="screen" id="screen-menu">
+  <h1 class="title">Menu</h1>
+  <div class="menulist">
+    <button class="menubtn" id="menuNew">Start a new game</button>
+    <button class="menubtn" id="menuHow">How to play</button>
+    <button class="menubtn" id="menuEdit">Edit the dares</button>
+  </div>
+</section>
+
+<!-- how to play -->
+<section class="screen" id="screen-howto">
+  <div class="howwrap" id="howBody"></div>
 </section>
 
 <!-- 4. turn: pick truth/dare -->
@@ -306,9 +342,7 @@ h1,h2,.display{font-family:'Baloo 2',cursive; letter-spacing:.5px;}
       <div class="seg" id="mType">
         <button data-v="TRUTH">Truth</button><button data-v="DARE" class="sel">Dare</button>
       </div>
-      <div class="seg" id="mLevel">
-        <button data-v="EASY" class="sel">Easy</button><button data-v="PLAYFUL">Playful</button><button data-v="TEASING">Teasing</button><button data-v="MEDIUM">Medium</button><button data-v="DARING">Daring</button><button data-v="HARD">Hard</button><button data-v="HEATED">Heated</button><button data-v="EXTREME">Extreme</button><button data-v="EXPLICIT">Explicit</button><button data-v="HARDCORE">Hardcore</button>
-      </div>
+      <label class="lvfield">Level <input type="number" id="mLevel" min="1" max="10.9" step="0.1" placeholder="4.5"></label>
     </div>
     <div class="modalrow">
       <label style="font-weight:800">Timer (sec, optional)</label>
@@ -467,38 +501,9 @@ function faceSVG(g,i){
 }
 
 /* ============================= DATA ============================= */
-const DEFAULT_ITEMS=[
- ['DARE','EASY',0,'😏 Swap one clothing item with the player across from you — make the exchange slow and deliberate.'],
- ['DARE','EASY',20,'😏 Get face-to-face with 😏, lips less than an inch apart. Breathe each other in and hold eye contact — no kissing yet.'],
- ['DARE','PLAYFUL',20,'😏 Rest your hand on 😏 upper chest over clothing and hold steady eye contact.'],
- ['DARE','PLAYFUL',15,'😏 Sit on 😏 lap, lean in, and whisper something flirtatious.'],
- ['DARE','TEASING',30,'😏 Massage 😏 upper inner thigh with fingertips.'],
- ['DARE','TEASING',45,'😏 Give 😏 a fully clothed lap dance. Their hands stay at their sides the entire time.'],
- ['DARE','MEDIUM',20,'👩 Touch your butt, nipple, or boob against 👨 bulge through clothing and underwear.'],
- ['DARE','MEDIUM',20,'😏 Kiss 😏 in several places they choose while they stay completely still.'],
- ['DARE','DARING',15,'😏 One finger under underwear, no deeper than the length of a finger from the waist.'],
- ['DARE','DARING',20,'😏 Massage 😏 crotch using only your foot — firm and teasing.'],
- ['DARE','HARD',60,'😏 Examine 😏 genitals as if you are their doctor. Stay in character for one minute.'],
- ['DARE','HARD',20,'😏 Rest one finger on 😏 bare genitals for 20 seconds.'],
- ['DARE','HEATED',30,"😏 Mutually masturbate with 😏, matching each other's rhythm."],
- ['DARE','HEATED',30,'👩 Place 👨 penis between your boobs and simulate titty fucking.'],
- ['DARE','EXTREME',0,'😏 Place one hand on 😏 testicles or clit and squeeze slowly until they say it is almost painful.'],
- ['DARE','EXTREME',20,'👨 Rub your bare penis against 👩 clitoris.'],
- ['DARE','EXPLICIT',20,'👩 Have 👨 slide one finger inside your pussy and move it slowly for 20 seconds.'],
- ['DARE','EXPLICIT',20,'👩 Take 👨 penis into your mouth and suck it slowly while holding eye contact.'],
- ['DARE','HARDCORE',20,'👨 Slowly slide your penis into 👩 vagina, then hold still for 20 seconds while maintaining eye contact.'],
- ['DARE','HARDCORE',0,'👩 Using your teeth, bite 👨 penis until it hurts — then stop.'],
- ['TRUTH','EASY',0,'What is the sexiest compliment you have ever given someone? What made you say it?'],
- ['TRUTH','EASY',0,'What kind of compliment makes you melt? What is a perfect example?'],
- ['TRUTH','PLAYFUL',0,'What sexual activity do you think is underrated? What makes it feel so good?'],
- ['TRUTH','PLAYFUL',0,'What voice, sound, or phrase turns you on? What would you want to hear?'],
- ['TRUTH','TEASING',0,'What would be your ideal role-play? Which role would you play?'],
- ['TRUTH','TEASING',0,'Have you ever had sex during your period? What was it like?'],
- ['TRUTH','MEDIUM',0,'What is the most unusual thing you have done during sex? What made it fun?'],
- ['TRUTH','MEDIUM',0,'What is one fantasy you have never told your closest friend?'],
- ['TRUTH','DARING',0,'Have you ever fantasized about someone in this room? Who?'],
- ['TRUTH','DARING',0,'What is at the top of your sexual bucket list?'],
-].map((r,i)=>({id:'d'+i,type:r[0],level:r[1],timer:r[2],text:r[3]}));
+/* every truth and dare from the sheet, built in: [type, difficulty score, timer seconds, text] */
+const DEFAULT_DATA=[["DARE",1,45,"😏 Face 😏 and silently mirror every cheeky movement they make. Hold eye contact the entire time — no touching."],["DARE",1.2,0,"😏 Look into 😏 eyes and tell them how gorgeous you think they are."],["DARE",1.3,0,"😏 Bite your lip and tell 😏 how badly you need to be touched — no laughing allowed."],["DARE",1.5,20,"😏 Stroke 😏 hair slowly, letting your fingers linger at the nape of their neck."],["DARE",1.5,10,"😏 Give your most exaggerated, filthy sexual moan while looking straight at 😏."],["DARE",1.5,20,"😏 Show 😏 how you would undress them using only your eyes — make them feel it."],["DARE",1.5,20,"😏 Make eye contact with 😏 and moan with pleasure for 20 seconds."],["DARE",1.6,20,"😏 Hold 😏 hand and slowly trace every line of their palm with one fingertip."],["DARE",1.8,20,"😏 Get face-to-face with 😏, lips less than an inch apart. Breathe each other in and hold eye contact — no kissing yet."],["DARE",1.8,15,"😏 Tickle 😏 somewhere they choose — make them squirm a little."],["DARE",1.8,30,"😏 Slowly massage 😏 hand, working from the center of their palm to each fingertip."],["DARE",1.8,0,"😏 Tell 😏 exactly what you want them to do to you, using your lowest, most seductive voice."],["DARE",1.8,0,"👩 Whisper to 👨 the last fantasy you masturbated to."],["DARE",1.8,30,"😏 Have 😏 talk dirty to you — as demeaning and filthy as they can get."],["DARE",1.9,0,"😏 Swap one clothing item with the player across from you — make the exchange slow and deliberate."],["DARE",2,20,"😏 Pick 😏 up and hold them for 20 seconds, looking into their eyes like you just fell in love."],["DARE",2,0,"😏 Blow a slow, warm breath into 😏 ear, then trail it down their neck."],["DARE",2,0,"😏 Demonstrate putting on protection using a prop — make it slow and deliberately sexy."],["DARE",2,0,"😏 One player is 'Master' for the next round. Anyone who forgets the nickname removes one item of clothing. (Next round)"],["DARE",2.5,0,"😏 Without speaking, act out exactly how you look and sound when you orgasm."],["DARE",2.5,20,"😏 Hold 😏 lower outer thigh."],["DARE",2.5,60,"😏 Give 😏 a slow shoulder-and-neck massage. They can only say 'lighter,' 'firmer,' 'slower,' 'faster,' or 'there.' Follow each direction."],["DARE",2.5,0,"😏 Using the back of your hand, touch 😏 over clothing in an area they choose. Keep it slow."],["DARE",2.8,20,"😏 Rest your hand on 😏 upper chest over clothing and hold steady eye contact."],["DARE",2.8,15,"😏 Sit on 😏 lap, lean in, and whisper, “I would like to see you undressed.”"],["DARE",2.8,15,"😏 Sit on the lap of 😏 for 15 seconds."],["DARE",2.8,0,"😏 Kiss 😏 hand slowly."],["DARE",3,20,"😏 Touch yourself over clothing the way you like when you're alone — keep eye contact with 😏."],["DARE",3,10,"😏 Count to ten, then slowly flash your underwear by tugging down a waistband or lifting a shirt — just a peek."],["DARE",3,60,"😏 Slow-dance with 😏 using as much body contact as they allow. Whisper one precise thing you find hot about them before time ends."],["DARE",3,0,"😏 Lightly trace patterns with your fingertips along 😏 arms, neck, and upper chest — make it teasing."],["DARE",3,0,"😏 Massage 😏 outer thigh, working higher with each stroke."],["DARE",3,0,"😏 Do ten push-ups over 😏 without putting weight on them — hover close enough to feel the heat. (10 reps)"],["DARE",3,0,"😏 Using a prop, mime giving oral sex to 😏 without ever touching them — make it filthy and detailed."],["DARE",3,0,"😏 Use a bottle or object to simulate your best oral sex technique (over clothes or prop)."],["DARE",3,0,"😏 Pick a nickname for yourself. If others forget it, give them an official spanking. (Ongoing)"],["DARE",3.2,30,"😏 Press against 😏 and slowly explore each other’s bodies using only your chests, midsections, and legs — no hands."],["DARE",3.3,20,"😏 Hold 😏 upper inner thigh."],["DARE",3.3,30,"😏 Without speaking, act out a favorite sexual position and have 😏 guess it."],["DARE",3.3,30,"😏 Without talking, imitate your favorite sex position with 😏."],["DARE",3.3,0,"😏 Keep your hand on 😏 inner thigh for the rest of the current turn — no moving away. (Current turn)"],["DARE",3.5,3,"😏 Touch a sensitive spot on 😏 over clothing for exactly three seconds — then stop."],["DARE",3.5,0,"👩 If your hair is long enough, use it to massage 👨 chest and stomach."],["DARE",3.8,30,"😏 Massage 😏 upper inner thigh with fingertips."],["DARE",3.8,45,"😏 Give 😏 a fully clothed lap dance. Their hands stay at their sides the entire time."],["DARE",3.8,45,"😏 Give 😏 a fully clothed lap dance. Their hands stay down unless you invite them to touch over clothing."],["DARE",3.8,30,"😏 Slowly remove one item of your clothing as a striptease for 😏."],["DARE",3.8,0,"😏 You and 😏 each remove one item of clothing. (Until done)"],["DARE",3.8,0,"😏 Remove your shirt or blouse. (Until done)"],["DARE",3.8,10,"😏 Kiss 😏 slowly on the lips for 10 seconds."],["DARE",3.8,20,"😏 Slowly roll an ice cube over 😏 chest and stomach."],["DARE",3.8,30,"😏 Slowly remove one item of 😏 outer clothing — make them feel every second."],["DARE",3.8,0,"😏 Use only your foot to remove one item of 😏 outer clothing."],["DARE",4,0,"😏 Touch yourself over your clothing until you are visibly aroused. (Until aroused)"],["DARE",4,0,"😏 Act out oral sex over the clothes of 😏 without actual contact."],["DARE",4,10,"😏 Give 😏 a slow 10-second kiss anywhere but the lips."],["DARE",4,0,"😏 Remove two items of your clothing. (Until done)"],["DARE",4,20,"😏 Slowly roll an ice cube over 😏 chest and thighs."],["DARE",4,30,"😏 Kiss 😏 neck slowly while keeping your hands firmly at their waist."],["DARE",4,0,"😏 Kiss or gently suck 😏 shoulder while pressing closer."],["DARE",4,20,"😏 Put on a blindfold while 😏 slowly traces one fingertip anywhere across your exposed skin."],["DARE",4,30,"😏 Simulate a sex act inches away from where contact would normally be made (no touching)."],["DARE",4.1,0,"👩 Pull down 👨  zipper as slowly as possible, feeling each tooth unclick. (Until open)"],["DARE",4.2,30,"😏 With clothes on, invent and hold a sexual position neither of you has tried before."],["DARE",4.2,20,"👩 Put your face next to 👨 penis as if giving head — no touching, just air and breath."],["DARE",4.2,30,"😏 With clothes on, simulate a favorite sexual position with 😏 — grind into it."],["DARE",4.2,15,"😏 Butts against each other for 15 seconds."],["DARE",4.2,0,"😏 Slowly remove two items of clothing from 😏. (Until done)"],["DARE",4.2,10,"😏 Kiss 😏 thigh slowly for 10 seconds."],["DARE",4.3,0,"😏 Take off your pants and remain in your underwear. (Until done)"],["DARE",4.5,0,"👩 Rub your nipples until they become hard. 👨 must confirm visually or by touch over clothes. (Until hard)"],["DARE",4.5,30,"😏 😏 chooses the spot (lips, neck, shoulder, or elsewhere) and the style (soft, slow, teasing, or passionate). Kiss them exactly as ordered."],["DARE",4.5,0,"😏 Pass a piece of candy to 😏 using only your mouths — make the transfer linger."],["DARE",4.5,0,"😏 Pass an ice cube to 😏 using only your mouths."],["DARE",4.5,30,"😏 With clothes on, dry-hump 😏 slowly and deliberately for 30 seconds."],["DARE",4.5,0,"😏 Strip down to underwear only. Stop there and let 😏 look. (Until done)"],["DARE",4.5,30,"😏 French-kiss 😏 deeply for 30 seconds."],["DARE",4.5,10,"😏 Kiss 😏 chest slowly for 10 seconds."],["DARE",4.5,45,"😏 Kiss or caress an area 😏 chooses while they direct you with 'continue,' 'slower,' 'faster,' and 'pause.' Follow every instruction immediately."],["DARE",4.5,20,"😏 Place your hand on a sensitive area of 😏 body over clothing and hold eye contact the entire time."],["DARE",4.6,0,"😏 Kiss or gently suck 😏 earlobe."],["DARE",4.8,20,"👩 Touch your butt, nipple, or boob against 👨 bulge through clothing + underwear."],["DARE",4.8,20,"😏 Kiss 😏 in several places they choose while they stay completely still."],["DARE",4.8,20,"😏 Caress 😏 butt over clothing, squeezing just enough to make them react."],["DARE",4.8,0,"😏 Gently suck or kiss 😏 stomach, working lower."],["DARE",5,0,"😏 Slowly suck one of 😏 fingers like you mean it."],["DARE",5,0,"😏 Grab 2 butt cheeks (not your own if possible)."],["DARE",5,20,"😏 Drop an ice cube inside your pants and leave it there for 20 seconds."],["DARE",5,0,"😏 Kiss 😏 butt cheek — take your time."],["DARE",5,60,"😏 While blindfolded, identify three sensations on exposed skin (including intimate areas): fingertips, a feather, and something cool. Say which you preferred and why."],["DARE",5,20,"😏 One fingertip touching under clothes but over underwear (length of finger from waist only)."],["DARE",5,15,"😏 Fingertip grazing male genitals through clothing + underwear."],["DARE",5,20,"👩 Use elbows, knees, or feet to move 👨 bulge around (best in underwear)."],["DARE",5,10,"😏 Remove one remaining item of clothing; if already nude, give a brief, teasing body shake."],["DARE",5,20,"😏 Place a hand over clothing on 😏 genitals and hold steady pressure."],["DARE",5,20,"😏 Suck on 😏 hand for 20 seconds as if it were something far more intimate — make it wet and deliberate."],["DARE",5.1,0,"😏 Write a letter on 😏 bare stomach using only your tongue. They get three guesses. (3 guesses)"],["DARE",5.2,20,"👩 Press your face against 👨 bulge — feel it with lips, forehead, and nose over clothing."],["DARE",5.3,10,"😏 Gently bite and suck 😏 earlobe."],["DARE",5.3,20,"👩 Rub 👨 penis slowly through his clothing with one hand."],["DARE",5.3,0,"😏 Put your foot inside 😏 pants and explore until you feel something."],["DARE",5.5,20,"😏 While blindfolded, let 😏 graze your skin near — but not inside — underwear boundaries with only fingertips."],["DARE",5.5,0,"😏 Get 3 sensual spankings from 😏 and have them rubbed in afterward. (3 reps)"],["DARE",5.5,20,"😏 Place your hand on a sensitive spot on 😏 bare skin and hold it completely still."],["DARE",5.5,10,"😏 Press your bare butt against 😏 for 10 seconds."],["DARE",5.5,0,"👩 Slap or pinch 👨 penis with 2 fingers over clothes."],["DARE",5.5,10,"😏 Lift your shirt and expose your chest or nipples to 👨 for 10 seconds."],["DARE",5.5,60,"😏 While 😏 is blindfolded, undress fully in front of them, then get dressed again before they can look."],["DARE",5.5,30,"😏 Stand in the middle while two 😏 touch you everywhere from each side."],["DARE",5.5,0,"👩 Blindfold 👨. He must guess body parts by touch only. (Until guessed)"],["DARE",5.5,0,"😏 While blindfolded, use an intimate body part to write a word on 😏 lower stomach; they must guess it. (3 guesses)"],["DARE",5.5,20,"😏 Touch 😏 wherever you like, staying strictly within their stated boundaries."],["DARE",5.5,0,"😏 While both of you are blindfolded, press an intimate body part against 😏 bare back and have them guess which part it is. (1 guess)"],["DARE",5.5,15,"😏 Grab 😏 neck lightly and look at them exactly as if you are fucking them."],["DARE",5.8,15,"😏 One finger under underwear (length of finger from waist only)."],["DARE",5.8,20,"😏 Massage 😏 crotch using only your foot — firm and teasing."],["DARE",5.8,20,"😏 Tease just inside 😏 underwear with one finger — no deeper than the first knuckle."],["DARE",6,0,"😏 Give 😏 3 almost-hard spankings and rub them in. (3 reps)"],["DARE",6,0,"👩 Hold and grip harder on the balls through clothes or underwear until it hurts — no movement, just pressure."],["DARE",6,0,"👨 Swing your penis in a slow, deliberate circle while 👩 watches."],["DARE",6,0,"👩 Touch yourself until turned on, then put a wet finger on 👨 lips."],["DARE",6,0,"😏 Give 😏 three firm, deliberate spankings — then rub them in. (3 reps)"],["DARE",6.5,30,"😏 Both in underwear: scissor / rub genitals against each other to try to turn each other on."],["DARE",6.5,20,"👩 Hold 👨 penis casually with a bare hand — no stroking, just hold."],["DARE",6.5,0,"😏 Graze 😏 lips with a nipple seven times, slowly. (7 reps)"],["DARE",6.5,0,"👩 Lean back and hold yourself upright by holding 👨 penis (trust-fall style)."],["DARE",6.8,60,"😏 Examine 😏 genitals as if you are their doctor. Stay in character for one minute."],["DARE",6.8,20,"😏 Rest one finger on 😏 bare genitals for 20 seconds."],["DARE",7,30,"👩 Rub or stroke 👨 penis with a bare hand."],["DARE",7,30,"👨 Engage in slow nipple play with 👩 — licking and gentle nibbling."],["DARE",7,20,"😏 Suck 😏 nipples with slow, deliberate attention."],["DARE",7,30,"😏 Touch yourself while 😏 touches you wherever they like using one finger."],["DARE",7,0,"👨 Place a hand on 👩 breast or nipple and squeeze slowly until she says it is almost painful."],["DARE",7.1,20,"👩 Lightly graze the tip of 👨 penis across your nipple."],["DARE",7.1,30,"👩 Stroke 👨 penis slowly for 30 seconds."],["DARE",7.2,0,"👩 Slap 👨 dick against your titties or your clit — your choice."],["DARE",7.2,0,"👨 Slap your penis against 👩 chest five times, making eye contact each time. (5 reps)"],["DARE",7.2,30,"👨 Have 👩 place one hand on your cock for 30 seconds. Instruct her exactly which motions you prefer."],["DARE",7.2,30,"👩 Have 👨 place one finger on your clit for 30 seconds. Instruct him exactly which motions you prefer."],["DARE",7.3,30,"👩 Hold a casual conversation while 👨 penis rests against your face."],["DARE",7.3,30,"😏 Show 😏 exactly how you masturbate, then let them copy the motion on you."],["DARE",7.4,0,"👩 Choose your titties or your face. 👨 slaps his penis against the chosen spot five times. (5 reps)"],["DARE",7.5,30,"👩 Place 👨 penis between your boobs and simulate titty fucking."],["DARE",7.6,30,"😏 Mutually masturbate with 😏, matching each other's rhythm."],["DARE",8,20,"👨 Position your penis against 👩 vaginal opening without entering."],["DARE",8.1,15,"👨 Touch your bare penis to 👩 closed lips."],["DARE",8.2,20,"👨 Rub your bare penis against 👩 clitoris."],["DARE",8.5,0,"😏 Place one hand on 😏 testicles or clit and squeeze slowly until they say it is almost painful."],["DARE",9,20,"👩 Take 👨 penis into your mouth and suck it slowly while holding eye contact."],["DARE",9,20,"😏 Place one finger inside 😏 and hold completely still for 20 seconds."],["DARE",9.2,20,"👩 Have 👨 slide one finger inside your pussy and move it slowly for 20 seconds."],["DARE",10,20,"👨 Slowly slide your penis into 👩 vagina, then hold still for 20 seconds while maintaining eye contact."],["DARE",10,0,"👩 Using your teeth, bite 👨 penis until it hurts — then stop."],["TRUTH",1,0,"What is the sexiest compliment you have ever given someone? What made you say it?"],["TRUTH",1.1,0,"What kind of compliment makes you melt? What is a perfect example?"],["TRUTH",1.1,0,"What smell turns you on unexpectedly? What does it remind you of?"],["TRUTH",1.2,0,"What nonsexual situation turns you on most? What makes it sexy to you?"],["TRUTH",1.2,0,"Have you ever gotten turned on at work? What triggered it?"],["TRUTH",1.3,0,"If you could use only one sexual position for the rest of your life, which would you choose? Why that one?"],["TRUTH",1.3,0,"Do you prefer loud or quiet partners in bed? What sounds turn you on most?"],["TRUTH",1.4,0,"Have you ever shared a shower with someone you were attracted to? What happened?"],["TRUTH",1.5,0,"What is your favorite way to be kissed? How should they do it?"],["TRUTH",1.5,0,"What is the sexiest thing in your camera roll right now?"],["TRUTH",1.6,0,"What is your favorite way for someone to initiate sex? What move works best on you?"],["TRUTH",1.6,0,"What is something unexpected that once made you horny?"],["TRUTH",1.7,0,"What color and style of underwear are you wearing? Why did you choose it?"],["TRUTH",1.8,0,"Have you ever walked in on people having sex? What happened?"],["TRUTH",1.8,0,"What is your go-to move when you want to turn someone on? How do you know it is working?"],["TRUTH",1.9,0,"Does size matter to you? What matters more?"],["TRUTH",1.9,0,"What popular sex act does nothing for you? What would you rather do?"],["TRUTH",2,0,"What sexual activity do you think is underrated? What makes it feel so good?"],["TRUTH",2,0,"What voice, sound, or phrase turns you on? What would you want to hear?"],["TRUTH",2.1,0,"What has a partner done that made you feel incredibly desired?"],["TRUTH",2.2,0,"What kind of touch drives you crazy in a good way? Where do you like it most?"],["TRUTH",2.2,0,"What is your favorite part of foreplay? What should the other person do?"],["TRUTH",2.3,0,"Do you prefer slow and sweet sex or fast and rough sex? What turns you on about your choice?"],["TRUTH",2.3,0,"What is the largest age gap you have had with an adult sexual partner? What attracted you to the difference?"],["TRUTH",2.4,0,"Do you like being nibbled or bitten? Where do you like it most?"],["TRUTH",2.4,0,"Do you watch porn? What kind turns you on most?"],["TRUTH",2.5,0,"Does swinging or swapping partners appeal to you? What part of it sounds hottest?"],["TRUTH",2.6,0,"What is the highest number of orgasms you have had in one day? What made you keep going?"],["TRUTH",2.6,0,"During sex, would you rather take control or give it up? What would your ideal dynamic look like?"],["TRUTH",2.7,0,"What body part do you most enjoy having kissed or sucked? How do you like it done?"],["TRUTH",2.7,0,"What is your favorite past sexual experience? What made it unforgettable?"],["TRUTH",2.8,0,"Have you ever hooked up with a stranger or had a one-night stand? What created the attraction?"],["TRUTH",2.9,0,"What was the best orgasm you have ever had? What made it so good?"],["TRUTH",2.9,0,"Would you enjoy having a threesome? What combination would you want?"],["TRUTH",3,0,"What would be your ideal role-play? Which role would you play?"],["TRUTH",3,0,"Have you ever had sex during your period? What was it like?"],["TRUTH",3.1,0,"What is the funniest embarrassing thing that has happened during sex? What happened?"],["TRUTH",3.1,0,"Have you ever been caught having sex? What happened?"],["TRUTH",3.2,0,"What is the riskiest place you have ever had sex? What made the risk exciting?"],["TRUTH",3.3,0,"Where is the strangest place you have ever masturbated? What made it exciting?"],["TRUTH",3.3,0,"What is a secret way you like to be teased? How would you want it done?"],["TRUTH",3.4,0,"Does being watched turn you on? Who would you want watching?"],["TRUTH",3.4,0,"Would making a sex tape turn you on? What would make it exciting?"],["TRUTH",3.5,0,"What do you like to be called during sex? Why does it work for you?"],["TRUTH",3.6,0,"What is the most daring sexual experience you have had? What made it thrilling?"],["TRUTH",3.6,0,"What is at the top of your sexual bucket list? Why do you want to try it?"],["TRUTH",3.7,0,"What is your favorite sex toy—or one you want to try? How would you want it used?"],["TRUTH",3.7,0,"Do you like having your neck grabbed during rough sex?"],["TRUTH",3.8,0,"Have you ever had a threesome? What did you enjoy most?"],["TRUTH",3.8,0,"Would masturbating with someone of the opposite gender turn you on? What would appeal to you?"],["TRUTH",3.9,0,"Would you rather dominate or be dominated in bed? What would you want your partner to do?"],["TRUTH",4,0,"What is the most unusual thing you have done during sex? What made it fun?"],["TRUTH",4,0,"What is one fantasy you have never told your closest friend?"],["TRUTH",4.1,0,"Have you ever touched yourself while someone else was nearby? What made it exciting?"],["TRUTH",4.1,0,"Who would be included in your dream group-sex fantasy? What would happen first?"],["TRUTH",4.2,0,"What is the most reliable way for a partner to help you orgasm? What rhythm works best?"],["TRUTH",4.2,0,"What is one sexual secret you have never admitted out loud?"],["TRUTH",4.3,0,"Where would you most like someone to touch you right now? How should they touch you?"],["TRUTH",4.4,0,"When was the last time you masturbated? What were you thinking about?"],["TRUTH",4.4,0,"What do you usually fantasize about when you masturbate? What part turns you on most?"],["TRUTH",4.5,0,"What is the kinkiest thought you have ever had? What part turns you on most?"],["TRUTH",4.5,0,"Would you feel comfortable being naked with the people in this room? What would help you relax?"],["TRUTH",4.6,0,"Which player in the room has a feature you find especially attractive? What feature is it?"],["TRUTH",4.7,0,"What part of 😏 body do you like the most?"],["TRUTH",4.7,0,"If 😏 kissed your neck right now, what would you do?"],["TRUTH",4.8,0,"Who in this room would you want kissing your neck right now? How would you react?"],["TRUTH",4.8,0,"Who in this room would you most like to kiss? How would you kiss them?"],["TRUTH",4.9,0,"Whose voice in this room would you most like to hear whisper something dirty? What should they whisper?"],["TRUTH",4.9,0,"What could another player do right now to turn you on? Who would you choose?"],["TRUTH",5,0,"Have you ever fantasized about someone in this room? Who?"]];
+const DEFAULT_ITEMS=DEFAULT_DATA.map((r,i)=>({id:'g'+i,type:r[0],level:r[1],timer:r[2],text:r[3]}));
 
 /* storage with in-memory fallback */
 const mem={};
@@ -507,26 +512,37 @@ const store={
   set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}
 };
 let items=[]; let uid=Date.now();
+const LEVEL_MAX=10;
+const OLD_LEVEL={WIMPY:1,EASY:1,PLAYFUL:2,TEASING:3,MEDIUM:4,DARING:5,HARD:6,HEATED:7,EXTREME:8,EXPLICIT:9,HARDCORE:10};
+function normText(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
 function loadItems(){
-  try{const raw=store.get('tod_items'); if(raw){items=JSON.parse(raw); if(Array.isArray(items)&&items.length) return;}}catch(e){}
+  try{const raw=store.get('tod_items_v11'); if(raw){const a=JSON.parse(raw); if(Array.isArray(a)&&a.length){items=a; return;}}}catch(e){}
   items=JSON.parse(JSON.stringify(DEFAULT_ITEMS));
+  // keep anything you added yourself in an earlier version
+  try{const raw=store.get('tod_items'); if(raw){const old=JSON.parse(raw); const have=new Set(items.map(i=>normText(i.text)));
+    (Array.isArray(old)?old:[]).forEach(o=>{
+      if(!o||!o.text||/^d\d+$/.test(String(o.id||''))||have.has(normText(o.text))) return;
+      const L=(typeof o.level==='number')?o.level:(OLD_LEVEL[String(o.level).toUpperCase()]||1);
+      items.push({id:'u'+(uid++),type:o.type,level:L,timer:o.timer||0,text:o.text}); have.add(normText(o.text));
+    });}}catch(e){}
+  saveItems();
 }
-function saveItems(){store.set('tod_items',JSON.stringify(items));}
+function saveItems(){store.set('tod_items_v11',JSON.stringify(items));}
 loadItems();
 
 /* game state */
-const state={count:2, players:[], setupIdx:0, level:'EASY', current:0,
+const state={count:2, players:[], setupIdx:0, level:1, current:0,
   used:{}, choice:'DARE', cardItem:null};
 function bucketKey(t,l){return t+'-'+l;}
 function usedSet(t,l){const k=bucketKey(t,l); if(!state.used[k])state.used[k]=[]; return state.used[k];}
 /* remember which items were already shown, even after the app is closed and reopened */
 function loadUsed(){
-  try{const raw=store.get('tod_used'); if(raw){const o=JSON.parse(raw); if(o&&typeof o==='object'){
+  try{const raw=store.get('tod_used_v11'); if(raw){const o=JSON.parse(raw); if(o&&typeof o==='object'){
     const ids=new Set(items.map(i=>i.id));
     for(const k in o){ if(Array.isArray(o[k])){ const kept=o[k].filter(id=>ids.has(id)); if(kept.length) state.used[k]=kept; } }
   }}}catch(e){}
 }
-function saveUsed(){store.set('tod_used',JSON.stringify(state.used));}
+function saveUsed(){store.set('tod_used_v11',JSON.stringify(state.used));}
 function clearUsed(){state.used={}; saveUsed();}
 function randInt(n){
   if(n<=1) return 0;
@@ -556,11 +572,25 @@ document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
 
 /* ============================= UI HELPERS ============================= */
 const $=id=>document.getElementById(id);
-const APP_VERSION='v10';
-const LEVEL_ORDER=['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'];
+const APP_VERSION='v11';
+/* the ten level stops, kept as potential level names for How to play */
+const LEVELS=[
+ {n:1,name:'Easy',adds:'Words, eye contact, no touch'},
+ {n:2,name:'Playful',adds:'Light non-intimate touch'},
+ {n:3,name:'Teasing',adds:'Sensual clothed touch, mild role-play'},
+ {n:4,name:'Medium',adds:'Kissing, clothed grinding, early undressing'},
+ {n:5,name:'Daring',adds:'Underwear-level, over-clothes genital, bare butt/breast'},
+ {n:6,name:'Hard',adds:'Bare intimate skin, spanking, genital-adjacent'},
+ {n:7,name:'Heated',adds:'Bare manual genital / mouth-nipple'},
+ {n:8,name:'Extreme',adds:'Contact at an opening, genital-to-genital'},
+ {n:9,name:'Explicit',adds:'Oral, finger/tip entry'},
+ {n:10,name:'Hardcore',adds:'Full sex, pain + insertion'}];
 $('verLabel').textContent=APP_VERSION;
+const HIDE_LVL=['screen-count','screen-face','screen-level','screen-menu','screen-howto','screen-editor'];
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');
-  $('levelGroup').style.visibility=(id==='screen-count'||id==='screen-face'||id==='screen-level')?'hidden':'visible';}
+  $('levelGroup').style.display=HIDE_LVL.includes(id)?'none':'flex';
+  $('menuBtn').innerHTML=(id==='screen-menu')?'&#10005;':'&#9776;';}
+show('screen-count');
 let toastT=null;
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
@@ -572,21 +602,33 @@ function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show')
   background:${colors[i%colors.length]};animation-delay:${-Math.random()*9}s;animation-duration:${7+Math.random()*6}s`;
   b.appendChild(s);}})();
 
-/* difficulty */
+/* difficulty: the levels are the numbers 1-10; every dare carries a decimal score inside its level (e.g. 4.5) */
 let levelReturn='screen-count';
+const THIRD=10/3;
+function bandName(d){ return d<THIRD?'Easy':(d<2*THIRD?'Medium':'Hard'); }
+function fmtScore(d){ return Number.isInteger(d)?d.toFixed(1):String(+d.toFixed(2)); }
+function lvlOf(score){ return Math.min(LEVEL_MAX,Math.max(1,Math.floor(score+1e-9))); }
+/* where the level currently stands: the lowest-scored dare not yet shown */
+function levelFrontier(N){
+  const all=items.filter(it=>it.type==='DARE'&&lvlOf(it.level)===N);
+  if(!all.length) return N;
+  const used=new Set(state.used['DARE-'+N]||[]);
+  const left=all.filter(it=>!used.has(it.id));
+  return Math.min(...(left.length?left:all).map(it=>it.level));
+}
 function renderLevelBtn(){
+  const N=state.level, d=levelFrontier(N);
   const b=$('levelBtn');
-  b.className='lvlbtn lv-'+state.level;
-  b.textContent=state.level[0]+state.level.slice(1).toLowerCase();
-  document.querySelectorAll('.levelbig').forEach(x=>x.classList.toggle('sel',x.dataset.l===state.level));
-  const li=LEVEL_ORDER.indexOf(state.level);
-  $('lvlPrev').style.visibility = li>0 ? 'visible' : 'hidden';
-  $('lvlNext').style.visibility = li<LEVEL_ORDER.length-1 ? 'visible' : 'hidden';
+  b.className='lvlbtn lv-'+lvlOf(d);
+  b.textContent=bandName(d)+' '+fmtScore(d);
+  document.querySelectorAll('.levelbig').forEach(x=>x.classList.toggle('sel',+x.dataset.l===N));
+  $('lvlPrev').style.visibility = N>1 ? 'visible' : 'hidden';
+  $('lvlNext').style.visibility = N<LEVEL_MAX ? 'visible' : 'hidden';
 }
 function stepLevel(d){
-  const i=LEVEL_ORDER.indexOf(state.level)+d;
-  if(i<0||i>=LEVEL_ORDER.length) return;
-  state.level=LEVEL_ORDER[i]; renderLevelBtn(); uiTap();
+  const N=state.level+d;
+  if(N<1||N>LEVEL_MAX) return;
+  state.level=N; renderLevelBtn(); uiTap();
   if($('screen-card').classList.contains('active')) drawCard(state.original?state.original.type:state.choice,true);
 }
 $('lvlPrev').onclick=()=>stepLevel(-1);
@@ -595,7 +637,7 @@ $('levelBtn').onclick=()=>{ uiTap();
   levelReturn=document.querySelector('.screen.active').id;
   renderLevelBtn(); show('screen-level'); };
 document.querySelectorAll('.levelbig').forEach(b=>b.onclick=()=>{
-  state.level=b.dataset.l; renderLevelBtn(); uiTap();
+  state.level=parseInt(b.dataset.l,10); renderLevelBtn(); uiTap();
   show(levelReturn);
   if(levelReturn==='screen-card') drawCard(state.original?state.original.type:state.choice,true);
 });
@@ -710,19 +752,19 @@ function spinWheel(){
       spinning=false; state.current=winner;
       $('seat'+winner).classList.add('winner');
       winSound();
-      setTimeout(()=>openTurn(),1000);
+      setTimeout(()=>{ if(document.querySelector('.screen.active').id==='screen-wheel') openTurn(); else { prepTurn(); menuReturn='screen-turn'; } },1000);
     }
   }
   requestAnimationFrame(frame);
 }
 
 /* ============================= TURN ============================= */
-function openTurn(){
+function prepTurn(){
   const p=state.players[state.current];
   $('turnFace').innerHTML=faceSVG(p.g,p.f);
   setChoice('DARE');
-  show('screen-turn');
 }
+function openTurn(){ prepTurn(); show('screen-turn'); }
 function setChoice(c){
   state.choice=c;
   $('rowTruth').classList.toggle('sel',c==='TRUTH');
@@ -770,38 +812,47 @@ function renderDareText(text){
   }
   return html;
 }
-const TRUTH_CAP_INDEX=2; // 0-based: EASY,PLAYFUL,TEASING map 1:1; index>2 (MEDIUM+) draws from all truths
-function pickItem(type,level){
+const TRUTH_CAP=3;        // truths: levels 1-3 use the matching truth tier; level 4 and up draws from every truth
+const LADDER_WINDOW=0.3;  // dares in a level are served lowest score first, shuffled within this window
+function pickItem(type,N){
   const cg=state.players[state.current]?state.players[state.current].g:null;
-  const capped = type==='TRUTH' && LEVEL_ORDER.indexOf(level) > TRUTH_CAP_INDEX;
-  const bucketLevel = capped ? 'ALL' : level;
-  const matches=it=> it.type===type && (capped ? true : it.level===level);
+  const capped = type==='TRUTH' && N>TRUTH_CAP;
+  const bucket = capped ? 'ALL' : String(N);
+  const matches=it=> it.type===type && (capped ? true : lvlOf(it.level)===N);
   const genderOk=it=>{const pg=performerGender(it.text); return !pg||pg===cg;};
   const eligible=items.filter(it=>matches(it)&&genderOk(it));
-  let used=usedSet(type,bucketLevel);
+  let used=usedSet(type,bucket);
   let pool=eligible.filter(it=>!used.includes(it.id));
   if(!pool.length && eligible.length){
     // every eligible item has been shown: start a fresh round for this level,
     // but keep the most recent one benched so it cannot come straight back
     const ids=new Set(eligible.map(it=>it.id));
     const last=used.filter(id=>ids.has(id)).pop();
-    state.used[bucketKey(type,bucketLevel)]=used.filter(id=>!ids.has(id)).concat(eligible.length>1&&last?[last]:[]);
-    used=usedSet(type,bucketLevel);
+    state.used[bucketKey(type,bucket)]=used.filter(id=>!ids.has(id)).concat(eligible.length>1&&last?[last]:[]);
+    used=usedSet(type,bucket);
     pool=eligible.filter(it=>!used.includes(it.id));
-    toast(`All ${capped?'':level.toLowerCase()+' '}${type.toLowerCase()}s used, shuffling fresh`);
+    toast(capped?'All truths used, shuffling fresh':`All level ${N} ${type.toLowerCase()}s used, shuffling fresh`);
   }
   if(!pool.length) pool=items.filter(matches);   // last resort: ignore gender rather than show nothing
   if(!pool.length) return null;
-  const it=pool[randInt(pool.length)];
-  usedSet(type,bucketLevel).push(it.id);
+  let cand=pool;
+  if(type==='DARE'){
+    const sorted=pool.slice().sort((a,b)=>a.level-b.level);
+    const lim=sorted[0].level+LADDER_WINDOW+1e-9;
+    cand=sorted.filter(it=>it.level<=lim);
+    if(cand.length<3) cand=sorted.slice(0,Math.min(3,sorted.length));
+  }
+  const it=cand[randInt(cand.length)];
+  usedSet(type,bucket).push(it.id);
   saveUsed();
+  try{renderLevelBtn();}catch(e){}
   return it;
 }
 function renderCard(type,it){
   state.choice=type;
   const p=state.players[state.current];
   $('cardFace').innerHTML=faceSVG(p.g,p.f);
-  if(!it){ $('cardText').innerHTML=`No ${state.level.toLowerCase()} ${type.toLowerCase()}s yet. Add some in the editor (✎).`; $('timerZone').innerHTML=''; return; }
+  if(!it){ $('cardText').innerHTML=`Nothing at level ${state.level} for ${type.toLowerCase()}s yet. Add some from the menu under Edit the dares.`; $('timerZone').innerHTML=''; return; }
   $('cardText').innerHTML=renderDareText(it.text);
   $('timerZone').innerHTML= it.timer>0 ? `<button class="timerbtn" id="startTimer">▶ &nbsp;${it.timer}s</button>` : '';
   if(it.timer>0) $('startTimer').onclick=()=>runCountdown(it.timer);
@@ -847,28 +898,51 @@ function stopCountdown(){ if(countdown){clearInterval(countdown);countdown=null;
 $('doneBtn').onclick=()=>{ uiTap(); stopCountdown(); buildWheel(); };
 
 /* ============================= EDITOR ============================= */
-let edType='ALL', edLevel='ALL', editing=null, prevScreen='screen-count';
-$('editBtn').onclick=()=>{ prevScreen=document.querySelector('.screen.active').id; renderEditor(); show('screen-editor'); };
-$('edDone').onclick=()=>{ uiTap(); show(prevScreen==='screen-editor'?'screen-count':prevScreen); };
-$('homeBtn').onclick=()=>{ uiTap(); if(confirm('Start a new game?')){ show('screen-count'); } };
+let edType='ALL', edLevel='ALL', editing=null;
+let menuReturn='screen-count';
+function openMenu(){
+  const cur=document.querySelector('.screen.active').id;
+  if(!['screen-menu','screen-howto','screen-editor','screen-level'].includes(cur)) menuReturn=cur;
+  show('screen-menu');
+}
+function closeMenu(){ show(menuReturn||'screen-count'); }
+$('menuBtn').onclick=()=>{ uiTap(); if($('screen-menu').classList.contains('active')) closeMenu(); else openMenu(); };
+$('menuNew').onclick=()=>{ uiTap(); stopCountdown(); show('screen-count'); };
+$('menuHow').onclick=()=>{ uiTap(); renderHowTo(); show('screen-howto'); };
+$('menuEdit').onclick=()=>{ uiTap(); renderEditor(); show('screen-editor'); };
+$('edDone').onclick=()=>{ uiTap(); show('screen-menu'); };
+function renderHowTo(){
+  const per={}; items.forEach(it=>{ if(it.type==='DARE'){ const n=lvlOf(it.level); per[n]=(per[n]||0)+1; } });
+  const tCount=items.filter(it=>it.type==='TRUTH').length;
+  const rows=LEVELS.map(L=>`<div class="lvrow"><div class="lvnum lv-${L.n}">${L.n}</div><div class="lvbody"><div class="lvname">${L.name}</div><div class="lvadds">${escapeHtml(L.adds)}</div></div><div class="lvcount"><b>${per[L.n]||0}</b><span>rounds</span></div></div>`).join('');
+  $('howBody').innerHTML=`<h1 class="title">How to play</h1>
+    <h2 class="howh">Difficulty levels</h2>
+    <p class="howp">Difficulty runs from 1 to 10. The arrows at the top move you one full level at a time. Every dare has its own decimal score inside its level, so the top shows where you stand, like <b>Easy 1.2</b>, <b>Medium 4.5</b> or <b>Hard 8.5</b>. Easy is the first third of the scale, Medium the middle third and Hard the last third. As the gentler dares in a level get used up, the number climbs.</p>
+    <div class="lvlist">${rows}</div>
+    <p class="howp small">The ten names above are potential level names. A round is one dare card, and a level reshuffles once all its dares have been used. Dares written for a man or a woman only come up for that player, so a round can be shorter than the count shown.</p>
+    <h2 class="howh">Truths</h2>
+    <p class="howp">Truths never get harder than level 3. Levels 1, 2 and 3 use the matching truth tier. From level 4 up, Truth draws from all ${tCount} truths.</p>
+    <button class="bigbtn" id="howBack">Back</button>`;
+  $('howBack').onclick=()=>{ uiTap(); show('screen-menu'); };
+}
 
 function renderEditor(){
   const f=$('edFilters');
   const chips=[['ALL','All'],['TRUTH','Truths'],['DARE','Dares']].map(([v,l])=>
     `<button class="chip ${edType===v?'sel':''}" data-k="type" data-v="${v}">${l}</button>`).join('')+
-    [['ALL','All levels'],['EASY','Easy'],['PLAYFUL','Playful'],['TEASING','Teasing'],['MEDIUM','Medium'],['DARING','Daring'],['HARD','Hard'],['HEATED','Heated'],['EXTREME','Extreme'],['EXPLICIT','Explicit'],['HARDCORE','Hardcore']].map(([v,l])=>
+    [['ALL','All levels'],...Array.from({length:LEVEL_MAX},(_,i)=>[String(i+1),'Level '+(i+1)])].map(([v,l])=>
     `<button class="chip ${edLevel===v?'sel':''}" data-k="level" data-v="${v}">${l}</button>`).join('');
   f.innerHTML=chips;
   f.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
     if(c.dataset.k==='type')edType=c.dataset.v; else edLevel=c.dataset.v;
     uiTap(); renderEditor();});
   const list=$('edList'); list.innerHTML='';
-  const rows=items.filter(it=>(edType==='ALL'||it.type===edType)&&(edLevel==='ALL'||it.level===edLevel));
+  const rows=items.filter(it=>(edType==='ALL'||it.type===edType)&&(edLevel==='ALL'||lvlOf(it.level)===+edLevel)).sort((a,b)=>a.level-b.level);
   if(!rows.length){list.innerHTML='<div style="opacity:.7;text-align:center;font-weight:700;padding:30px">Nothing here yet. Tap ＋ Add.</div>';}
   rows.forEach(it=>{
     const r=document.createElement('div'); r.className='edrow';
     r.innerHTML=`<span class="badge ${it.type[0]}">${it.type[0]}</span>
-      <span class="badge lv-${it.level}">${it.level[0]}</span>
+      <span class="badge lv-${lvlOf(it.level)}">${fmtScore(+it.level)}</span>
       ${it.timer>0?`<span class="badge tm">⏱${it.timer}s</span>`:''}
       <div class="txt">${escapeHtml(it.text)}</div>
       <button title="Edit">✎</button><button title="Delete">🗑</button>`;
@@ -885,7 +959,7 @@ function openModal(it){
   editing=it;
   $('mText').value=it?it.text:'';
   $('mTimer').value=it&&it.timer>0?it.timer:'';
-  setSeg('mType',it?it.type:'DARE'); setSeg('mLevel',it?it.level:'EASY');
+  setSeg('mType',it?it.type:'DARE'); $('mLevel').value=it?it.level:state.level;
   $('editModal').classList.add('open'); $('mText').focus();
 }
 function setSeg(id,v){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('sel',b.dataset.v===v));}
@@ -896,7 +970,9 @@ $('mCancel').onclick=()=>$('editModal').classList.remove('open');
 $('mSave').onclick=()=>{
   const text=$('mText').value.trim(); if(!text){toast('Write something first');return;}
   const timer=Math.max(0,parseInt($('mTimer').value||'0',10)||0);
-  const type=getSeg('mType'), level=getSeg('mLevel');
+  const type=getSeg('mType'); let level=parseFloat($('mLevel').value);
+  if(!(level>=1&&level<LEVEL_MAX+1)){ toast('Level must be between 1 and 10.9'); return; }
+  level=Math.round(level*100)/100;
   if(editing){Object.assign(editing,{text,timer,type,level});}
   else items.push({id:'u'+(uid++),text,timer,type,level});
   saveItems(); $('editModal').classList.remove('open'); renderEditor(); toast('Saved');
@@ -939,14 +1015,13 @@ function parseImport(raw){
   }
   rows.forEach(cols=>{
     const type=(cols[map.type]||'').toUpperCase();
-    let level=(cols[map.level]||'').toUpperCase();
-    if(level==='MED')level='MEDIUM';
-    if(level==='XTREME')level='EXTREME';
-    if(level==='HC')level='HARDCORE';
+    const lvRaw=(cols[map.level]||'').trim().toUpperCase();
+    const lvAlias={MED:'MEDIUM',XTREME:'EXTREME',HC:'HARDCORE'};
+    const level=/^\d+(\.\d+)?$/.test(lvRaw)?parseFloat(lvRaw):OLD_LEVEL[lvAlias[lvRaw]||lvRaw];
     const timer=parseInt(String(cols[map.timer]||'').replace(/[^0-9]/g,''),10)||0;
     let text=(cols[map.text]||'').trim();
     if(delim==='|') text=cols.slice(map.text).join(' | ').trim();
-    if(!['TRUTH','DARE'].includes(type)||!['EASY','PLAYFUL','TEASING','MEDIUM','DARING','HARD','HEATED','EXTREME','EXPLICIT','HARDCORE'].includes(level)||!text){bad++;return;}
+    if(!['TRUTH','DARE'].includes(type)||!(level>=1&&level<LEVEL_MAX+1)||!text){bad++;return;}
     added.push({type,level,timer,text});
   });
   return {added,bad};
@@ -967,7 +1042,7 @@ $('importFile').addEventListener('change',e=>{
   rd.readAsText(f);
 });
 $('resetBtn').onclick=()=>{
-  if(confirm('Replace everything with the built-in starter list?')){
+  if(confirm('Reset to the built-in list of all truths and dares? Your own changes will be removed.')){
     items=JSON.parse(JSON.stringify(DEFAULT_ITEMS)); saveItems(); clearUsed(); renderEditor(); toast('Reset to built-ins');
   }
 };
