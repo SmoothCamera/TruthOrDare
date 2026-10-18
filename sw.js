@@ -1,5 +1,5 @@
-const CACHE='tod-v7';
+const CACHE='tod-v10';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));});
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>Promise.all(SHELL.map(u=>c.add(new Request(u,{cache:'reload'}))))).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(h=>h||fetch(e.request).then(r=>{if(r&&(r.status===200||r.type==='opaque')){const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));}return r;}).catch(()=>caches.match('./index.html'))));});
+self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;const url=new URL(req.url);const isDoc=req.mode==='navigate'||req.destination==='document'||(url.origin===location.origin&&(url.pathname.endsWith('/')||url.pathname.endsWith('/index.html')));if(isDoc){e.respondWith(fetch(req).then(r=>{if(r&&r.status===200){const a=r.clone(),b=r.clone();caches.open(CACHE).then(c=>{c.put(req,a);c.put('./index.html',b);});}return r;}).catch(()=>caches.match(req).then(h=>h||caches.match('./index.html'))));return;}e.respondWith(caches.match(req).then(h=>h||fetch(req).then(r=>{if(r&&(r.status===200||r.type==='opaque')){const c=r.clone();caches.open(CACHE).then(x=>x.put(req,c));}return r;})));});
